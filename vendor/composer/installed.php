@@ -1040,6 +1040,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'surfsidemedia/shoppingcart' => array(
+            'pretty_version' => 'v2.0.0',
+            'version' => '2.0.0.0',
+            'reference' => '55cb634d3d5e7834b67cb4e15cb8b71e31546ae4',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../surfsidemedia/shoppingcart',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'symfony/clock' => array(
             'pretty_version' => 'v7.4.0',
             'version' => '7.4.0.0',
