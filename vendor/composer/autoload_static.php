@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
+class ComposerStaticInitff0c658a3bb32123062272ccdad31864
 {
     public static $files = array (
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
@@ -91,6 +91,7 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
             'Symfony\\Component\\CssSelector\\' => 30,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Clock\\' => 24,
+            'Surfsidemedia\\Shoppingcart\\' => 27,
         ),
         'R' => 
         array (
@@ -328,6 +329,10 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
         array (
             0 => __DIR__ . '/..' . '/symfony/clock',
         ),
+        'Surfsidemedia\\Shoppingcart\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src',
+        ),
         'Ramsey\\Uuid\\' => 
         array (
             0 => __DIR__ . '/..' . '/ramsey/uuid/src',
@@ -563,11 +568,15 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
         'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
         'App\\Http\\Controllers\\Auth\\ResetPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ResetPasswordController.php',
         'App\\Http\\Controllers\\Auth\\VerificationController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/VerificationController.php',
+        'App\\Http\\Controllers\\CartController' => __DIR__ . '/../..' . '/app/Http/Controllers/CartController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\HomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/HomeController.php',
+        'App\\Http\\Controllers\\ShopController' => __DIR__ . '/../..' . '/app/Http/Controllers/ShopController.php',
         'App\\Http\\Controllers\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/UserController.php',
         'App\\Http\\Middleware\\AuthAdmin' => __DIR__ . '/../..' . '/app/Http/Middleware/AuthAdmin.php',
         'App\\Models\\Brand' => __DIR__ . '/../..' . '/app/Models/Brand.php',
+        'App\\Models\\Category' => __DIR__ . '/../..' . '/app/Models/Category.php',
+        'App\\Models\\Product' => __DIR__ . '/../..' . '/app/Models/Product.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -6183,6 +6192,16 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
         'SebastianBergmann\\Type\\VoidType' => __DIR__ . '/..' . '/sebastian/type/src/type/VoidType.php',
         'SebastianBergmann\\Version' => __DIR__ . '/..' . '/sebastian/version/src/Version.php',
         'Stringable' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
+        'Surfsidemedia\\Shoppingcart\\CanBeBought' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/CanBeBought.php',
+        'Surfsidemedia\\Shoppingcart\\Cart' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/Cart.php',
+        'Surfsidemedia\\Shoppingcart\\CartItem' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/CartItem.php',
+        'Surfsidemedia\\Shoppingcart\\CartItemOptions' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/CartItemOptions.php',
+        'Surfsidemedia\\Shoppingcart\\Contracts\\Buyable' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/Contracts/Buyable.php',
+        'Surfsidemedia\\Shoppingcart\\Exceptions\\CartAlreadyStoredException' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/Exceptions/CartAlreadyStoredException.php',
+        'Surfsidemedia\\Shoppingcart\\Exceptions\\InvalidRowIDException' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/Exceptions/InvalidRowIDException.php',
+        'Surfsidemedia\\Shoppingcart\\Exceptions\\UnknownModelException' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/Exceptions/UnknownModelException.php',
+        'Surfsidemedia\\Shoppingcart\\Facades\\Cart' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/Facades/Cart.php',
+        'Surfsidemedia\\Shoppingcart\\ShoppingcartServiceProvider' => __DIR__ . '/..' . '/surfsidemedia/shoppingcart/src/ShoppingcartServiceProvider.php',
         'Symfony\\Component\\Clock\\Clock' => __DIR__ . '/..' . '/symfony/clock/Clock.php',
         'Symfony\\Component\\Clock\\ClockAwareTrait' => __DIR__ . '/..' . '/symfony/clock/ClockAwareTrait.php',
         'Symfony\\Component\\Clock\\ClockInterface' => __DIR__ . '/..' . '/symfony/clock/ClockInterface.php',
@@ -7282,9 +7301,9 @@ class ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitc514d8f7b9fc5970bdd94287905ef584::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitff0c658a3bb32123062272ccdad31864::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitff0c658a3bb32123062272ccdad31864::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitff0c658a3bb32123062272ccdad31864::$classMap;
 
         }, null, ClassLoader::class);
     }
