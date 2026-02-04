@@ -1418,7 +1418,6 @@
 #49 C:/Users/ishit/Documents/Year_2/TeamProject/drip-and-co-Amrit-23/drip-and-co-Ishita-24/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('C://Users//ishit//...')
 #50 {main}
 "} 
-
 [2026-02-03 23:02:50] local.ERROR: Method App\Http\Controllers\WishlistController::remove_item does not exist. {"userId":1,"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\WishlistController::remove_item does not exist. at C:/Users/ishit/Documents/Year_2/TeamProject/drip-and-co-Amrit-23/drip-and-co-Ishita-24/vendor/laravel/framework/src/Illuminate/Routing/Controller.php:68)
 [stacktrace]
 #0 C:/Users/ishit/Documents/Year_2/TeamProject/drip-and-co-Amrit-23/drip-and-co-Ishita-24/vendor/laravel/framework/src/Illuminate/Routing/Controller.php(54): Illuminate/Routing/Controller->__call('remove_item', Array)
@@ -1828,4 +1827,3 @@
 #61 C:/Users/ishit/Documents/Year_2/TeamProject/drip-and-co-Amrit-23/drip-and-co-Ishita-24/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('C://Users//ishit//...')
 #62 {main}
 "} 
-
