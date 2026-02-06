@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
 use App\Models\Coupon;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Surfsidemedia\Shoppingcart\Facades\Cart;
 
@@ -57,9 +59,9 @@ class CartController extends Controller
         {
             $coupon = Coupon::where('code', $coupon_code)->where('expiry_date', '>=', Carbon::today())->where('cart_value', '<=', Cart::instance('cart')->subtotal())->first();
             if(!$coupon)
-            {
-                return redirect()->back()->with('error','Invalid coupon code');
-            }
+                {
+                    return redirect()->back()->with('error','Invalid coupon code');
+                }
             else{
                 Session::put('coupon', [
                     'code' => $coupon->code,
@@ -107,6 +109,17 @@ class CartController extends Controller
     {
         Session::forget('coupon');
         Session::forget('discounts');
-        return back()->with('success','Coupon has been removed successfully');
+        return back()->with('error','Coupon has been removed successfully');
+    }
+
+    public function checkout()
+    {
+        if(!Auth::check())
+        {
+            return redirect()->route('login');
+        }
+
+        $address = Address::where('user_id',Auth::user()->id)->where('isdefault',1)->first();
+        return view('checkout', compact('address'));
     }
 }
