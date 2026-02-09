@@ -1,0 +1,11 @@
+// Admin Orders
+Route::middleware(['auth','isAdmin'])->prefix('admin')->group(function () {
+    Route::get('/orders', [AdminOrderController::class,'index']);
+    Route::get('/orders/{order}', [AdminOrderController::class,'show']);
+});
+
+// User Orders
+Route::middleware('auth')->group(function () {
+    Route::get('/my-orders', [UserOrderController::class,'index']);
+    Route::get('/my-orders/{order}', [UserOrderController::class,'show']);
+});
