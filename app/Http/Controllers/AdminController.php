@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Coupon;
+use App\Models\Order;
 use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -480,5 +481,42 @@ class AdminController extends Controller
         $coupon->delete();
         return redirect()->route('admin.coupons')->with('status','Coupon has been deleted successfully!');
     }
+
+    public function orders()
+    {
+        $orders = Order::orderBy('created_at','DESC')->paginate(10);
+        return view('admin.orders',compact('orders'));
+    }
+
+    public function order_details($order_id)
+    {
+        $order = Order::find($order_id);
+        $orderItems = OrderItem::where('order_id',$order_id)->orderBy("id")->paginate(12);
+        $transaction = Transaction::where('order_id',$order_id)->first();
+        return view('admin.order-details',compact('order','orderItems'));
+    }
+
+    public function update_order_status(Request $request)
+    {
+       $order = Order::find($request->order_id);
+       $order->status = $request->status;
+       if($request->status == 'delivered')
+       {
+        $order->delivered_date = Carbon::now();
+       }
+       elseif($request->status == 'canceled')
+       {
+        $order->canceled_date = Carbon::now();
+       }
+       $order->save();
+       
+       if($request->status == 'delivered')
+       {
+       $transaction = Transaction::where('order_id',$request->order_id)->first();
+       $transaction->status = 'approved';
+       $transaction->save();  
+       }
+       return back()->with('status','Status has been updated successfully!');
+} 
 
 }
