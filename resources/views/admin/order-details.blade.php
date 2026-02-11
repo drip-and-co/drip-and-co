@@ -11,7 +11,7 @@
                                     <h3>Order Details</h3>
                                     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                                         <li>
-                                            <a href="{{route(admin.index)}}">
+                                            <a href="{{route('admin.index')}}">
                                                 <div class="text-tiny">Dashboard</div>
                                             </a>
                                         </li>
@@ -32,8 +32,8 @@
                                         <a class="tf-button style-1 w208" href="{{route('admin.orders')}}">Back</a>
                                     </div>
                                     <div class="table-responsive">
-                                        @if(session:has('status'))
-                                        <p class="alert alert-success">{{session::get('status')}}</p>
+                                        @if(session('status'))
+                                        <p class="alert alert-success">{{session('status')}}</p>
                                         @endif
                                         <table class="table table-striped table-bordered">
                                              <tr>
