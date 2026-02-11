@@ -1,12 +1,12 @@
-@extends("layouts.admin")
-@section("content")
-  <div class="main-content-inner">
+@extends('layouts.admin')
+@section('content')
+<div class="main-content-inner">
                             <div class="main-content-wrap">
                                 <div class="flex items-center flex-wrap justify-between gap20 mb-27">
                                     <h3>Orders</h3>
                                     <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                                         <li>
-                                            <a href="{{ route('admin.index') }}">
+                                            <a href="{{route('admin.index')}}">
                                                 <div class="text-tiny">Dashboard</div>
                                             </a>
                                         </li>
@@ -53,27 +53,28 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach ( $orders as $order )
+                                                    @foreach ($orders as $order)
                                                     <tr>
-                                                        <td class="text-center">{{ $order->id }}</td>
-                                                        <td class="text-center">{{ $order->name }}</td>
-                                                        <td class="text-center">{{ $order->phone }}</td>
-                                                        <td class="text-center">${{ ($order->subtotal, 2) }}</td>
-                                                        <td class="text-center">${{ ($order->tax, 2) }}</td>
-                                                        <td class="text-center">${{ ($order->total, 2) }}</td>
-                                                        <td class="text-center">{{  
-                                                             @if($order->status == "delivered")
-                                                        <span class="badge badge-success">Delivered</span>
-                                                        @elseif($order->status == "canceled")
-                                                        <span class="badge badge-danger">Canceled</span>
+                                                        <td class="text-center">{{$order->id}}</td>
+                                                        <td class="text-center">{{$order->name}}</td>
+                                                        <td class="text-center">{{$order->phone}}</td>
+                                                        <td class="text-center">${{$order->subtotal}}</td>
+                                                        <td class="text-center">${{$order->tax}}</td>
+                                                        <td class="text-center">${{$order->total}}</td>
+                                                        <td class="text-center">  
+                                                        @if($order->status == 'delivered')
+                                                            <span class="badge bg-success">Delivered</span>
+                                                        @elseif($order->status == 'canceled')
+                                                            <span class="badge bg-danger">Canceled</span>
                                                         @else
-                                                        <span class="badge badge-warning">Ordered</span>
-                                                        @endif}}</td>
-                                                        <td class="text-center">{{ $order->created_at }}</td>
-                                                        <td class="text-center">{{ $order->orderItems->count() }}</td>
-                                                        <td class="text-center">{{ $order->delivered_date }}</td>
+                                                            <span class="badge bg-warning">Ordered</span>
+                                                        @endif
+                                                    </td>
+                                                        <td class="text-center">{{$order->created_at}}</td>
+                                                        <td class="text-center">{{$order->orderItems->count()}}</td>
+                                                        <td class="text-center">{{$order->delivered_date}}</td>
                                                         <td class="text-center">
-                                                            <a href="{{ route("admin.order-details",["order_id"=>$order->id]) }}">
+                                                            <a href="{{route('admin.order.details',['order_id'=>$order->id])}}">
                                                                 <div class="list-icon-function view-icon">
                                                                     <div class="item eye">
                                                                         <i class="icon-eye"></i>
@@ -83,19 +84,16 @@
                                                         </td>
                                                     </tr>
                                                     @endforeach
-
                                                 </tbody>
                                             </table>
                                         </div>
-                                        {{ $order->links("pagination:: bootstrap-5") }}
                                     </div>
                                     <div class="divider"></div>
                                     <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-
+                                        {{ $orders->links('pagination::bootstrap-5') }}
                                     </div>
                                 </div>
                             </div>
                         </div>
-
 
 @endsection

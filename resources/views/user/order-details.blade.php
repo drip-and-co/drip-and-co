@@ -1,41 +1,7 @@
-@extends("layouts.app")
-
-@section("content")
-
-@extends("layouts.app")
-@section("content")
+@extends(layouts.app)
+@section('content')
  <style>
-    .table> :not(caption)>tr>th {
-      padding: 0.625rem 1.5rem .625rem !important;
-      background-color: #6a6e51 !important;
-    }
-
-    .table>tr>td {
-      padding: 0.625rem 1.5rem .625rem !important;
-    }
-
-    .table-bordered> :not(caption)>tr>th,
-    .table-bordered> :not(caption)>tr>td {
-      border-width: 1px 1px;
-      border-color: #6a6e51;
-    }
-
-    .table> :not(caption)>tr>td {
-      padding: .8rem 1rem !important;
-    }
-    .bg-success {
-      background-color: #40c710 !important;
-    }
-
-    .bg-danger {
-      background-color: #f44032 !important;
-    }
-
-    .bg-warning {
-      background-color: #f5d700 !important; 
-      color: #000;
-    }
-     .pt-90 {
+    .pt-90 {
       padding-top: 90px !important;
     }
 
@@ -131,132 +97,71 @@
       border-color: #6a6e51;
     }
   </style>
-<main class="pt-90" style="padding-top: 0px;">
+ <main class="pt-90" style="padding-top: 0px;">
     <div class="mb-4 pb-4"></div>
     <section class="my-account container">
         <h2 class="page-title">Order Details</h2>
         <div class="row">
             <div class="col-lg-2">
                 @include('user.account-nav')
-        </div>
+                    </div>
 
             <div class="col-lg-10">
-
-                <div class="wg-table table-all-user">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered">
-                            <thead>
-                                <tr>
-                                    <th style="width: 80px">OrderNo</th>
-                                    <th>Name</th>
-                                    <th class="text-center">Phone</th>
-                                    <th class="text-center">Subtotal</th>
-                                    <th class="text-center">Tax</th>
-                                    <th class="text-center">Total</th>
-                                    
-                                    <th class="text-center">Status</th>
-                                    <th class="text-center">Order Date</th>
-                                    <th class="text-center">Items</th>
-                                    <th class="text-center">Delivered On</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ( $orders as $order )
-                                    
-                                    <tr>
-                                    <td class="text-center">100{{$order->id}}</td>  
-                                    <td class="text-center">{{$order->name}}</td>
-                                    <td class="text-center">{{$order->phone}}</td>
-                                    <td class="text-center">${{$order->subtotal}}</td>
-                                    <td class="text-center">${{$order->tax}}</td>
-                                    <td class="text-center">${{$order->total}}</td>
-                                    <td class="text-center">{{ $order->status }}</td>
-                                    <td class="text-center">{{ $order->created_at }}</td>
-                                    <td class="text-center">{{ $order->orderItems->count() }}</td>
-                                    <td class="text-center">{{ $order->delivered_date }}</td>
-                                    <td class="text-center">
-                                        <span class="badge bg-danger">Canceled</span></td>
-                                    <td class="text-center">2024-07-11 00:54:14</td>
-                                    <td class="text-center">2</td>
-                                    <td>2024-07-07</td>
-                                    <td class="text-center">
-                                        <a href="account-orders-details.html">
-                                        <div class="list-icon-function view-icon">
-                                            <div class="item eye">
-                                                <i class="fa fa-eye"></i>
-                                            </div>                                        
-                                        </div>
-                                        </a>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                <div class="divider"></div>
-                <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">  
-                    {{ $orders->links("pagination:: bootstrap-5") }}              
-                    
-                </div>
-           
-                                            <div class="wg-box">
+            <div class="wg-box">
                                     <div class="flex items-center justify-between gap10 flex-wrap">
-                                    
-                                            
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <h5>Ordered Details</h5>
-                                                </div>
-                                                <div class="col-6 text-right">
-                                                <a class="btn btn-sm btn-danger" href="{{ route('user.orders') }}">Back</a>
+                                       <div class="row">
+                                        <div class="col-6">
+                                          <h5>Ordered Details</h5>
+                                       </div>
+                                        <div class="col-6 text-right">
+                                            <a class="btn btn-sm btn-danger" href="{{route('user.orders')}}">Back</a>
                                         </div>
                                     </div>
+                                </div>
                                     <div class="table-responsive">
-                                        if (session::has("stsus"))
-                                        <p class="alert alert-success">{{ session::get("status") }}</p>
-                                            
+                                        @if(session:has('status'))
+                                        <p class="alert alert-success">{{session::get('status')}}</p>
                                         @endif
-                                        <table class="table table-striped table-bordered table-transaction">
-                                                <tr>
+                                        <table class="table table-bordered table-striped table-transaction">
+                                             <tr>
                                                     <th>Order No</th>
-                                                    <td>{{ $order->id }}</td>
-                                                       <th>Mobile</th>
-                                                    <td>{{ $order->phone}}</td>
-                                                       <th>Zip Code</th>
-                                                    <td>{{ $order->zip }}</td>
+                                                    <td>{{$order->id}}</td>
+                                                    <th>Mobile</th>
+                                                    <td>{{$order->phone}}</td>
+                                                    <th>Zip Code</th>
+                                                    <td>{{$order->zip}}</td>
                                                 </tr>
                                                 <tr>
                                                     <th>Order Date</th>
-                                                    <td>{{ $order->created_at}}</td>
-                                                       <th>Delivered Date</th>
-                                                    <td>{{ $order->delivered_date }}</td>
-                                                       <th>Cancelled Date</th>
-                                                    <td>{{ $order->cancelled_date }}</td>
+                                                    <td>{{$order->created_at}}</td>
+                                                    <th>Delivered Date</th>
+                                                    <td>{{$order->delivered_date}}</td>
+                                                    <th>Canceled Date</th>
+                                                    <td>{{$order->canceled_date}}</td>
                                                 </tr>
                                                 <tr>
-                                                    <th>Order Status</th>
+                                                    <th>Order status</th>
                                                     <td colspan="5">
-                                                        @if($order->status == "delivered")
-                                                        <span class="badge badge-success">Delivered</span>
-                                                        @elseif($order->status == "canceled")
-                                                        <span class="badge badge-danger">Canceled</span>
+                                                        @if($order->status == 'delivered')
+                                                            <span class="badge bg-success">Delivered</span>
+                                                        @elseif($order->status == 'canceled')
+                                                            <span class="badge bg-danger">Canceled</span>
                                                         @else
-                                                        <span class="badge badge-warning">Ordered</span>
+                                                            <span class="badge bg-warning">Ordered</span>
                                                         @endif
                                                     </td>
-                                                        
+                                                </tr>
+
                                         </table>
                                     </div>
-                                    </div>
+                                </div>
+
 
                                 <div class="wg-box">
                                     <div class="flex items-center justify-between gap10 flex-wrap">
                                         <div class="wg-filter flex-grow">
                                             <h5>Ordered Items</h5>
                                         </div>
-                                       
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-striped table-bordered">
@@ -274,29 +179,25 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($orderItems as $item)
-                                                    
-                                                @endforeach
+                                                @foreach($orderItems as $item)
                                                 <tr>
 
                                                     <td class="pname">
                                                         <div class="image">
-                                                            <img src="{{ asset("uploads/products/thumbnails") }}/{{ $item->product->image }}" class="image">
+                                                            <img src="{{asset('uploads/products/thumbnails')}}/{{$item->product->image}}" alt="{{$item->product->name}}" class="image">
                                                         </div>
                                                         <div class="name">
-                                                            <a href="{{ route('shop.product.details', ['product_slug'=> $item->product->slug]) }}" target="_blank"
-
+                                                            <a href="{{route('shop.product.details',['product_slug'=>$item->product->slug])}}" target="_blank"
                                                                 class="body-title-2">{{$item->product->name}}</a>
                                                         </div>
                                                     </td>
                                                     <td class="text-center">${{ $item->price }}</td>
                                                     <td class="text-center">{{ $item->quantity }}</td>
-                                                    <td class="text-center">{{ $item->product->SKU }}</td>
-                                                    <td class="text-center">{{ $item->product->category->name }}</td>
-                                                    <td class="text-center">{{ $item->product->brand->name }}</td>
-                                                    <td class="text-center">{{ $item->options}}</td>
+                                                    <td class="text-center">{{ $item->sku }}</td>
+                                                    <td class="text-center">{{ $item->product->category->name}}</td>
+                                                    <td class="text-center">{{ $item->product->brand->name}}</td>
+                                                    <td class="text-center">${{ $item->options}}</td>
                                                     <td class="text-center">{{ $item->rstatus == 0 ? 'No' : 'Yes' }}</td>
-                                        
                                                     <td class="text-center">
                                                         <div class="list-icon-function view-icon">
                                                             <div class="item eye">
@@ -306,28 +207,28 @@
                                                     </td>
                                                 </tr>
                                                 @endforeach
-                            
-
                                             </tbody>
                                         </table>
-                                        
+                                    </div>
+                                   
                                     <div class="divider"></div>
                                     <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-                                        {{ $orderItems->links('pagination::bootstrap-5') }}
+                                            {{ $orderItems->links('pagination::bootstrap-5') }}
                                     </div>
-                                
-                                    <div class="wg-box mt-5">
+                                </div>
+
+                                <div class="wg-box mt-5">
                                     <h5>Shipping Address</h5>
                                     <div class="my-account__address-item col-md-6">
                                         <div class="my-account__address-item__detail">
-                                            <p>{{ $order->name }}</p>
-                                            <p>{{ $order->address }}</p>
-                                            <p>{{ $order->locality }} </p>
-                                            <p>{{ $order->city }}, {{ $order->country }}</p>
-                                            <p>{{ $order->landmark }}</p>
-                                            <p>{{ $order->Zip }}</p>
+                                            <p>{{$order->name}}</p>
+                                            <p>{{$order->address}}</p>
+                                            <p>{{$order->localcity}}</p>
+                                            <p>{{$order->city}}, {{$order->country}}</p>
+                                            <p>{{$order->landmark}}</p>
+                                            <p>{{$order->zip}}</p>
                                             <br>
-                                            <p>Mobile : {{ $order->phone }}</p>
+                                            <p>Mobile : {{$order->phone}}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -338,99 +239,50 @@
                                         <tbody>
                                             <tr>
                                                 <th>Subtotal</th>
-                                                <td>${{ $order->subtotal }}</td>
+                                                <td>{{$order->subtotal}}</td>
                                                 <th>Tax</th>
-                                                <td>${{ $order->tax }}</td>
+                                                <td>{{$order->tax}}</td>
                                                 <th>Discount</th>
-                                                <td>${{ $order->discount }}</td>
+                                                <td>{{$order->discount}}</td>
                                             </tr>
                                             <tr>
                                                 <th>Total</th>
-                                                <td>${{ $order->total }}</td>
+                                                <td>{{$order->total}}</td>
                                                 <th>Payment Mode</th>
                                                 <td>{{$transaction->mode}}</td>
                                                 <th>Status</th>
-                                                <td>
-                                                    @if ($transaction->status =="approved")
-                                                        <span class="badge badge-success">Approved</span>
-                                                    @elseif($transaction->status =="declined")      
-                                                        <span class="badge badge-danger">Declined</span>
-                                                    @elseif($transaction->status =="refunded")      
-                                                        <span class="badge badge-secondary">Refunded</span>
+                                                <td @if($transaction->status == 'approved')
+                                                        <span class="badge bg-success">Approved</span>
+                                                    @elseif($transaction->status == 'declined')
+                                                        <span class="badge bg-danger">Declined</span>
+                                                        @elseif($transaction->status == 'refunded')
+                                                        <span class="badge bg-secondary">Refunded</span>
                                                     @else
-                                                        <span class="badge badge-warning">Pending</span>
+                                                        <span class="badge bg-warning">Pending</span>
                                                     @endif
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Order Date</th>
-                                                <td>2024-07-11 00:54:14</td>
-                                                <th>Delivered Date</th>
-                                                <td></td>
-                                                <th>Canceled Date</th>
-                                                <td></td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="wg-box mt-5">
-                                    <h5>Transactions</h5>
-                                    <table class="table table-striped table-bordered table-transaction">
-                                        <tbody>
-                                            <tr>
-                                                <th>Subtotal</th>
-                                                <td>${{ $order->subtotal }}</td>
-                                                <th>Tax</th>
-                                                <td>${{ $order->tax }}</td>
-                                                <th>Discount</th>
-                                                <td>${{ $order->discount }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Total</th>
-                                                <td>${{ $order->total }}</td>
-                                                <th>Payment Mode</th>
-                                                <td>{{$transaction->mode}}</td>
-                                                <th>Status</th>
-                                                <td>
-                                                    @if ($transaction->status =="approved")
-                                                        <span class="badge badge-success">Approved</span>
-                                                    @elseif($transaction->status =="declined")      
-                                                        <span class="badge badge-danger">Declined</span>
-                                                    @elseif($transaction->status =="refunded")      
-                                                        <span class="badge badge-secondary">Refunded</span>
-                                                    @else
-                                                        <span class="badge badge-warning">Pending</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Order Date</th>
-                                                <td>2024-07-11 00:54:14</td>
-                                                <th>Delivered Date</th>
-                                                <td></td>
-                                                <th>Canceled Date</th>
-                                                <td></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="wg-box mt-5">
-                                    <form action="{{ route("user.order.cancel") }}" method="POST">
-                                        @csrf
-                                        <@method("PUT")
-                                        <input type="hidden" name="order_id" value="{{ $order->id }}">
-                                        <button type="button" class="btn btn-danger cancel-order">Cancel Order</button>
-                                        </form>
-                            </div>
-                            @endif
 
+                                @if($order->status== 'ordered')
+                                    <div class="wg-box mt-5 text-right">
+                                        <form action="{{route('user.order.cancel')}}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="order_id" value="{{$order->id}}">
+                                            <button type="button" class="btn btn-danger cancel-order">Cancel Order</button>
+                                        </form>
+                                     </div>
+                                @endif
+                         </div>
             
         </div>
     </section>
 </main>
 @endsection
 
-@endsection
 @push('scripts')
     <script>
         $(function() {
