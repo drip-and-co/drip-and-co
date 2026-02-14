@@ -191,21 +191,11 @@ class CartController extends Controller
 
             if($request->mode == 'card')
                 {
-                    $transaction = new Transaction();
-                    $transaction->user_id = $user_id;
-                    $transaction->order_id = $order->id;
-                    $transaction->mode = $request->mode;
-                    $transaction->status = 'pending';
-                    $transaction->save();
+                    // Integrate with payment gateway and update transaction status accordingly
                 }
             elseif($request->mode == 'paypal')
                 {
-                    $transaction = new Transaction();
-                    $transaction->user_id = $user_id;
-                    $transaction->order_id = $order->id;
-                    $transaction->mode = $request->mode;
-                    $transaction->status = 'pending';
-                    $transaction->save();
+                    // Integrate with PayPal and update transaction status accordingly
                 }
             elseif($request->mode == 'cod')
                 {

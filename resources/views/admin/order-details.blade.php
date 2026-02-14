@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends(layouts.admin)
 @section('content')
   <style>
                             .table-transaction>tbody>tr:nth-of-type(odd) {
@@ -32,8 +32,8 @@
                                         <a class="tf-button style-1 w208" href="{{route('admin.orders')}}">Back</a>
                                     </div>
                                     <div class="table-responsive">
-                                        @if(Session::has('status'))
-                                        <p class="alert alert-success">{{Session::get('status')}}</p>
+                                        @if(session::has('status'))
+                                        <p class="alert alert-success">{{session::get('status')}}</p>
                                         @endif
                                         <table class="table table-striped table-bordered">
                                              <tr>
@@ -164,7 +164,7 @@
                                                 <th>Payment Mode</th>
                                                 <td>{{$transaction->mode}}</td>
                                                 <th>Status</th>
-                                                <td> @if($transaction->status == 'approved')
+                                                <td @if($transaction->status == 'approved')
                                                         <span class="badge bg-success">Approved</span>
                                                     @elseif($transaction->status == 'declined')
                                                         <span class="badge bg-danger">Declined</span>

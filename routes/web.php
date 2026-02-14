@@ -36,12 +36,6 @@ Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkou
 Route::post('/place-an-order', [CartController::class, 'place_an_order'])->name('cart.place.an.order');
 Route::get('/order-confirmation', [CartController::class, 'order_confirmation'])->name('cart.order.confirmation');
 
-Route::get('/contact-us', [HomeController::class, 'contact'])->name('home.contact');
-Route::post('/contact/store', [HomeController::class, 'contact_store'])->name('home.contact.store');
-
-Route::get('/search', [HomeController::class, 'search'])->name('home.search');
-
-
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
@@ -89,9 +83,4 @@ Route::middleware(['auth',AuthAdmin::class])->group(function () {
     Route::get('/admin/slides/{id}edit',[AdminController::class,'slide_edit'])->name('admin.slide.edit');
     Route::put('/admin/slides/update',[AdminController::class,'slide_update'])->name('admin.slide.update');
         Route::delete('/admin/slides/{id}/delete',[AdminController::class,'slide_delete'])->name('admin.slide.delete');
-
-     Route::get('/admin/contact',[AdminController::class,'contact'])->name('admin.contacts');   
-     Route::delete('/admin/contact/{id}/delete',[AdminController::class,'contact_delete'])->name('admin.contact.delete');
-
-     Route::get('/admin/search',[AdminController::class,'search'])->name('admin.search');
 });
