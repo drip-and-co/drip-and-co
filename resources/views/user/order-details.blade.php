@@ -128,7 +128,7 @@
                                                     <td>{{$order->id}}</td>
                                                     <th>Mobile</th>
                                                     <td>{{$order->phone}}</td>
-                                                    <th>Zip Code</th>
+                                                    <th>Post Code</th>
                                                     <td>{{$order->zip}}</td>
                                                 </tr>
                                                 <tr>
@@ -170,7 +170,6 @@
                                                     <th>Name</th>
                                                     <th class="text-center">Price</th>
                                                     <th class="text-center">Quantity</th>
-                                                    <th class="text-center">SKU</th>
                                                     <th class="text-center">Category</th>
                                                     <th class="text-center">Brand</th>
                                                     <th class="text-center">Options</th>
@@ -198,13 +197,7 @@
                                                     <td class="text-center">{{ $item->product->brand->name}}</td>
                                                     <td class="text-center">£{{ $item->options}}</td>
                                                     <td class="text-center">{{ $item->rstatus == 0 ? 'No' : 'Yes' }}</td>
-                                                    <td class="text-center">
-                                                        <div class="list-icon-function view-icon">
-                                                            <div class="item eye">
-                                                                <i class="icon-eye"></i>
-                                                            </div>
-                                                        </div>
-                                                    </td>
+                                                    
                                                 </tr>
                                                 @endforeach
                                             </tbody>
@@ -218,15 +211,13 @@
                                 </div>
 
                                 <div class="wg-box mt-5">
-                                    <h5>Shipping Address</h5>
+                                    <h5>Delivery Address</h5>
                                     <div class="my-account__address-item col-md-6">
                                         <div class="my-account__address-item__detail">
-                                            <p>{{$order->name}}</p>
-                                            <p>{{$order->address}}</p>
-                                            <p>{{$order->localcity}}</p>
-                                            <p>{{$order->city}}, {{$order->country}}</p>
-                                            <p>{{$order->landmark}}</p>
-                                            <p>{{$order->zip}}</p>
+                                              <p>{{ $order->name }}</p>
+                                              <p>{{ $order->address }} {{ $order->locality }}</p>
+                                              <p>{{ $order->city }}, {{ $order->state }}</p>
+                                              <p>{{ $order->zip }}, {{ $order->country }}</p>
                                             <br>
                                             <p>Mobile : {{$order->phone}}</p>
                                         </div>
