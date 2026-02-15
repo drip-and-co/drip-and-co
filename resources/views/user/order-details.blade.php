@@ -1,4 +1,4 @@
-@extends(layouts.app)
+@extends('layouts.app')
 @section('content')
  <style>
     .pt-90 {
@@ -119,8 +119,8 @@
                                     </div>
                                 </div>
                                     <div class="table-responsive">
-                                        @if(session:has('status'))
-                                        <p class="alert alert-success">{{session::get('status')}}</p>
+                                        @if(Session::has('status'))
+                                        <p class="alert alert-success">{{Session::get('status')}}</p>
                                         @endif
                                         <table class="table table-bordered table-striped table-transaction">
                                              <tr>
@@ -251,7 +251,7 @@
                                                 <th>Payment Mode</th>
                                                 <td>{{$transaction->mode}}</td>
                                                 <th>Status</th>
-                                                <td @if($transaction->status == 'approved')
+                                                <td> @if($transaction->status == 'approved')
                                                         <span class="badge bg-success">Approved</span>
                                                     @elseif($transaction->status == 'declined')
                                                         <span class="badge bg-danger">Declined</span>
