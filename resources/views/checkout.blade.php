@@ -45,9 +45,8 @@
                       <div class="my-account__address-list-item">
                         <div class="my-account__address-item__detail">
                           <p>{{ $address->name }}</p>
-                          <p>{{ $address->address }}</p>
-                          <p>{{ $address->landmark }}</p>
-                          <p>{{ $address->city }}</p>
+                          <p>{{ $address->address }} {{ $address->locality }}</p>
+                          <p>{{ $address->city }}, {{ $address->state }}</p>
                           <p>{{ $address->zip }}</p>
                           <br>
                           <p>{{ $address->phone }}</p>
