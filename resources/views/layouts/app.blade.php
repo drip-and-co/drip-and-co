@@ -347,7 +347,7 @@
               <a href="{{route('cart.index')}}" class="navigation__link">Cart</a>
             </li>
             <li class="navigation__item">
-              <a href="about.html" class="navigation__link">About</a>
+              <a href="{{route('home.about')}}" class="navigation__link">About</a>
             </li>
             <li class="navigation__item">
               <a href="contact.html" class="navigation__link">Contact</a>
@@ -428,7 +428,7 @@
               <a href="{{route('cart.index')}}" class="navigation__link">Cart</a>
             </li>
             <li class="navigation__item">
-              <a href="about.html" class="navigation__link">About</a>
+              <a href="{{route('home.about')}}" class="navigation__link">About</a>
             </li>
             <li class="navigation__item">
               <a href="{{route('home.contact')}}" class="navigation__link">Contact</a>
