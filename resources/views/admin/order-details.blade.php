@@ -139,37 +139,45 @@
                                 </div>
 
                                 <div class="wg-box mt-5">
-                                    <h5>Transactions</h5>
-                                    <table class="table table-striped table-bordered table-transaction">
-                                        <tbody>
-                                            <tr>
-                                                <th>Subtotal</th>
-                                                <td>{{$order->subtotal}}</td>
-                                                <th>Tax</th>
-                                                <td>{{$order->tax}}</td>
-                                                <th>Discount</th>
-                                                <td>{{$order->discount}}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Total</th>
-                                                <td>{{$order->total}}</td>
-                                                <th>Payment Mode</th>
-                                                <td>{{$transaction->mode}}</td>
-                                                <th>Status</th>
-                                                <td> @if($transaction->status == 'approved')
-                                                        <span class="badge bg-success">Approved</span>
-                                                    @elseif($transaction->status == 'declined')
-                                                        <span class="badge bg-danger">Declined</span>
-                                                        @elseif($transaction->status == 'refunded')
-                                                        <span class="badge bg-secondary">Refunded</span>
-                                                    @else
-                                                        <span class="badge bg-warning">Pending</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+                                 <div class="flex items-center justify-between gap10 flex-wrap">
+                                    <div class="wg-filter flex-grow">
+                                          <h5>Transactions</h5>
+                                     </div>
+                                  </div>
+                                     <div class="table-responsive">
+                                      <table class="table table-striped table-bordered table-transaction">
+                                     <tbody>
+                                    <tr>
+                                        <th>Subtotal</th>
+                                        <td>{{$order->subtotal}}</td>
+                                        <th>Tax</th>
+                                        <td>{{$order->tax}}</td>
+                                        <th>Discount</th>
+                                        <td>{{$order->discount}}</td>
+                                    </tr>
+                                      <tr>
+                                        <th>Total</th>
+                                        <td>{{$order->total}}</td>
+                                        <th>Payment Mode</th>
+                                        <td>{{$transaction->mode}}</td>
+                                        <th>Status</th>
+                                    <td>
+                                        @if($transaction->status == 'approved')
+                                            <span class="badge bg-success">Approved</span>
+                                        @elseif($transaction->status == 'declined')
+                                            <span class="badge bg-danger">Declined</span>
+                                        @elseif($transaction->status == 'refunded')
+                                            <span class="badge bg-secondary">Refunded</span>
+                                        @else
+                                            <span class="badge bg-warning">Pending</span>
+                                        @endif
+                     </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
                                    <div class="wg-box mt-5">
                                     <h5>Update Order Status</h5>
                                   <form action="{{route('admin.order.status.update')}}" method="POST">

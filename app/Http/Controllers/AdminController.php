@@ -208,7 +208,7 @@ class AdminController extends Controller
         if($request->hasFile('image')){
             if(File::exists(public_path('uploads/categories').'/'.$category->image))
             {
-                File:delete(ppublic_path('uploads/categories').'/'.$category->image);
+                File::delete(public_path('uploads/categories').'/'.$category->image);
             }
             $image = $request->file('image');
             $file_extension = $request->file('image')->extension();
