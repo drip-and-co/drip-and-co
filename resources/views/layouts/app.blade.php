@@ -9,7 +9,7 @@
 
   <title>{{ config('app.name', 'Laravel') }}</title>
   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-  <meta name="author" content="surfside media" />
+  <meta name="author" content="team17" />
   <link rel="shortcut icon" href="{{asset('assets/images/favicon.ico') }}" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.gstatic.com/">
   <link
@@ -24,6 +24,14 @@
     integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw=="
     crossorigin="anonymous" referrerpolicy="no-referrer">
     @stack("styles")
+
+    <style>
+.footer-column-extra .sub-menu__title {
+    color: #deefe7 !important;  
+}
+</style>
+
+    
 </head>
 
 <body class="gradient-bg">
@@ -33,10 +41,7 @@
       <rect y="8" width="20" height="2" />
       <rect y="16" width="25" height="2" />
     </symbol>
-    <symbol id="icon_facebook" viewBox="0 0 9 15">
-      <path
-        d="M7.62891 8.31543L8.01172 5.7998H5.57812V4.15918C5.57812 3.44824 5.90625 2.79199 7 2.79199H8.12109V0.631836C8.12109 0.631836 7.10938 0.44043 6.15234 0.44043C4.15625 0.44043 2.84375 1.6709 2.84375 3.8584V5.7998H0.601562V8.31543H2.84375V14.4404H5.57812V8.31543H7.62891Z" />
-    </symbol>
+    
     <symbol id="icon_twitter" viewBox="0 0 14 13">
       <path
         d="M12.5508 3.59668C13.0977 3.18652 13.5898 2.69434 13.9727 2.12012C13.4805 2.33887 12.9062 2.50293 12.332 2.55762C12.9336 2.20215 13.3711 1.65527 13.5898 0.97168C13.043 1.2998 12.4141 1.5459 11.7852 1.68262C11.2383 1.1084 10.5 0.780273 9.67969 0.780273C8.09375 0.780273 6.80859 2.06543 6.80859 3.65137C6.80859 3.87012 6.83594 4.08887 6.89062 4.30762C4.51172 4.1709 2.37891 3.02246 0.957031 1.2998C0.710938 1.70996 0.574219 2.20215 0.574219 2.74902C0.574219 3.7334 1.06641 4.6084 1.85938 5.12793C1.39453 5.10059 0.929688 4.99121 0.546875 4.77246V4.7998C0.546875 6.19434 1.53125 7.34277 2.84375 7.61621C2.625 7.6709 2.35156 7.72559 2.10547 7.72559C1.91406 7.72559 1.75 7.69824 1.55859 7.6709C1.91406 8.81934 2.98047 9.63965 4.23828 9.66699C3.25391 10.4326 2.02344 10.8975 0.683594 10.8975C0.4375 10.8975 0.21875 10.8701 0 10.8428C1.25781 11.6631 2.76172 12.1279 4.40234 12.1279C9.67969 12.1279 12.5508 7.78027 12.5508 3.97949C12.5508 3.84277 12.5508 3.7334 12.5508 3.59668Z" />
@@ -368,14 +373,7 @@
 
 
         <ul class="container social-links list-unstyled d-flex flex-wrap mb-0">
-          <li>
-            <a href="#" class="footer__social-link d-block ps-0">
-              <svg class="svg-icon svg-icon_facebook" width="9" height="15" viewBox="0 0 9 15"
-                xmlns="http://www.w3.org/2000/svg">
-                <use href="#icon_facebook" />
-              </svg>
-            </a>
-          </li>
+         
           <li>
             <a href="#" class="footer__social-link d-block">
               <svg class="svg-icon svg-icon_twitter" width="14" height="13" viewBox="0 0 14 13"
@@ -522,7 +520,7 @@
         <div class="footer-column footer-store-info col-12 mb-4 mb-lg-0">
           <div class="logo">
             <a href="{{route('home.index')}}">
-              <img src="{{ asset('assets/images/logo.png') }}" alt="SurfsideMedia" class="logo__image d-block" />
+              <img src="{{ asset('assets/images/logo.png') }}" alt="DripandCo" class="logo__image d-block" />
             </a>
           </div>
           <p class="footer-address">14 Drip Drive, Dripstone City, UK B4 7ET</p>
@@ -530,14 +528,7 @@
           <p><strong class="fw-medium">+44 000-000-0000</strong></p>
 
           <ul class="social-links list-unstyled d-flex flex-wrap mb-0">
-            <li>
-              <a href="#" class="footer__social-link d-block">
-                <svg class="svg-icon svg-icon_facebook" width="9" height="15" viewBox="0 0 9 15"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <use href="#icon_facebook" />
-                </svg>
-              </a>
-            </li>
+           
             <li>
               <a href="#" class="footer__social-link d-block">
                 <svg class="svg-icon svg-icon_twitter" width="14" height="13" viewBox="0 0 14 13"
@@ -569,48 +560,33 @@
         <div class="footer-column footer-menu mb-4 mb-lg-0">
           <h6 class="sub-menu__title text-uppercase">Company</h6>
           <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="about-2.html" class="menu-link menu-link_us-s">About Us</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Careers</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Affiliates</a></li>
-            <li class="sub-menu__item"><a href="blog_list1.html" class="menu-link menu-link_us-s">Blog</a></li>
-            <li class="sub-menu__item"><a href="contact-2.html" class="menu-link menu-link_us-s">Contact Us</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-column footer-menu mb-4 mb-lg-0">
-          <h6 class="sub-menu__title text-uppercase">Shop</h6>
-          <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="shop2.html" class="menu-link menu-link_us-s">New Arrivals</a></li>
-            <li class="sub-menu__item"><a href="shop3.html" class="menu-link menu-link_us-s">Accessories</a></li>
-            <li class="sub-menu__item"><a href="shop4.html" class="menu-link menu-link_us-s">Men</a></li>
-            <li class="sub-menu__item"><a href="shop5.html" class="menu-link menu-link_us-s">Women</a></li>
-            <li class="sub-menu__item"><a href="shop1.html" class="menu-link menu-link_us-s">Shop All</a></li>
+            <li class="sub-menu__item"><a href="{{route('home.about')}}" class="menu-link menu-link_us-s">About Us</a></li>
+            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Modern Slavery Act</a></li>
+            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">All rights reserved</a></li>
           </ul>
         </div>
 
         <div class="footer-column footer-menu mb-4 mb-lg-0">
           <h6 class="sub-menu__title text-uppercase">Help</h6>
           <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Customer Service</a></li>
-            <li class="sub-menu__item"><a href="account_dashboard.html" class="menu-link menu-link_us-s">My Account</a>
-            </li>
-            <li class="sub-menu__item"><a href="store_location.html" class="menu-link menu-link_us-s">Find a Store</a>
-            </li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Legal & Privacy</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Gift Card</a></li>
+            <li class="sub-menu__item"><a href="{{route('home.contact')}}" class="menu-link menu-link_us-s">Contact Us</a></li>
+            <li class="sub-menu__item"><a href="{{route('shop.index')}}" class="menu-link menu-link_us-s">Accessbility</a></li>
           </ul>
         </div>
 
         <div class="footer-column footer-menu mb-4 mb-lg-0">
           <h6 class="sub-menu__title text-uppercase">Categories</h6>
-          <ul class="sub-menu__list list-unstyled">
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Shirts</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Jeans</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Shoes</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Bags</a></li>
-            <li class="sub-menu__item"><a href="#" class="menu-link menu-link_us-s">Shop All</a></li>
+          <ul class="sub-menu__list list-unstyled category-grid">
+          <li class="sub-menu__item"><a href="{{route('shop.index')}}" class="menu-link menu-link_us-s">Outerwear</a></li>
+            <li class="sub-menu__item"><a href="{{route('shop.index')}}" class="menu-link menu-link_us-s">Innerwear</a></li>
+            <li class="sub-menu__item"><a href="{{route('shop.index')}}" class="menu-link menu-link_us-s">Tops</a></li>
+              <li class="sub-menu__item"><a href="{{route('shop.index')}}" class="menu-link menu-link_us-s">Bottoms</a></li>
+            <li class="sub-menu__item"><a href="{{route('shop.index')}}" class="menu-link menu-link_us-s">Accessories</a></li>
+            
           </ul>
         </div>
+
+     
       </div>
     </div>
 

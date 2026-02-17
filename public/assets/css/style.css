@@ -1880,6 +1880,22 @@ progress {
   .modal-fullscreen .modal-footer {
     border-radius: 0; }
 
+    .category-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr; 
+      column-gap: 40px;
+      row-gap: 8px;
+      grid-auto-flow: column;
+    }
+
+    .category-grid .sub-menu__item:nth-child(-n+3) {
+      grid-column: 1;
+    }
+
+    .category-grid .sub-menu__item:nth-child(n+4) {
+      grid-column: 2;
+    }
+
 @media (max-width: 575.98px) {
   .modal-fullscreen-sm-down {
     width: 100vw;
