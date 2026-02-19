@@ -124,7 +124,24 @@ class CartController extends Controller
         }
 
         $address = Address::where('user_id',Auth::user()->id)->where('isdefault',1)->first();
-        return view('checkout', compact('address'));
+
+        // Build stock warnings and available quantities per product for the view
+        $stockWarnings = [];
+        $availableByProduct = [];
+        foreach (Cart::instance('cart')->content() as $item) {
+            $product = Product::find($item->id);
+            $available = $product ? (int) $product->quantity : 0;
+            $availableByProduct[$item->id] = $available;
+            if ($available < (int) $item->qty) {
+                $stockWarnings[] = [
+                    'name'      => $item->name,
+                    'requested' => (int) $item->qty,
+                    'available' => $available,
+                ];
+            }
+        }
+
+        return view('checkout', compact('address', 'stockWarnings', 'availableByProduct'));
     }
 
     public function place_an_order(Request $request)

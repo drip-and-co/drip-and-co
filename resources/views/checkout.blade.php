@@ -27,6 +27,25 @@
           </span>
         </a>
       </div>
+      @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ session('error') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      @endif
+
+      @if(!empty($stockWarnings))
+        <div class="alert alert-warning mb-4" role="alert">
+          <strong>Insufficient stock</strong>
+          <p class="mb-0 mt-2">The following items have more quantity in your cart than we have in stock. Please <a href="{{ route('cart.index') }}">update your cart</a> or reduce quantities before placing your order.</p>
+          <ul class="mb-0 mt-2">
+            @foreach($stockWarnings as $w)
+              <li><strong>{{ $w['name'] }}</strong>: you have <strong>{{ $w['requested'] }}</strong> in cart, only <strong>{{ $w['available'] }}</strong> available.</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+  
       <form name="checkout-form" action="{{ route('cart.place.an.order') }}" method="POST">
         @csrf
         <div class="checkout-form">
@@ -123,9 +142,15 @@
                   </thead>
                   <tbody>
                     @foreach (Cart::instance('cart') as $item)
+                    @php $available = $availableByProduct[$item->id] ?? 0; @endphp
                     <tr>
                       <td>
                         {{ $item->name }} x {{ $item->qty }}
+                        @if($available < $item->qty)
+                          <div class="text-danger small mt-1">
+                            Only {{ $available }} in stock. Reduce quantity in <a href="{{ route('cart.index') }}">cart</a>.
+                          </div>
+                        @endif
                       </td>
                       <td class="text-right">
                         {{ $item->subtotal() }}
@@ -213,7 +238,10 @@
                     policy</a>.
                 </div>
               </div>
-              <button class="btn btn-primary btn-checkout">PLACE ORDER</button>
+              <button type="submit" class="btn btn-primary btn-checkout" @if(!empty($stockWarnings)) disabled title="Reduce quantities in your cart first" @endif>PLACE ORDER</button>
+                @if(!empty($stockWarnings))
+                  <p class="text-danger small mt-2 mb-0">Please update your cart to fix stock issues before placing your order.</p>
+                @endif
             </div>
           </div>
         </div>
