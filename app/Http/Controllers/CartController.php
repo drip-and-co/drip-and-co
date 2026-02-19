@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Address;
 use App\Models\Coupon;
+use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
@@ -164,10 +165,10 @@ class CartController extends Controller
             $order = new Order();
 
             $order->user_id = $user_id;
-            $order->subtotal = Session::get('checkout')['subtotal'];
-            $order->discount = Session::get('checkout')['discount'];
-            $order->tax = Session::get('checkout')['tax'];
-            $order->total = Session::get('checkout')['total'];
+            $order->subtotal = $order->total = (float) str_replace(',', '', Session::get('checkout')['subtotal']);;
+            $order->discount = $order->total = (float) str_replace(',', '', Session::get('checkout')['discount']);;
+            $order->tax = $order->total = (float) str_replace(',', '', Session::get('checkout')['tax']);;
+            $order->total = $order->total = (float) str_replace(',', '', Session::get('checkout')['total']);;
             $order->name = $address->name;
             $order->phone = $address->phone;
             $order->locality = $address->locality;
@@ -186,6 +187,16 @@ class CartController extends Controller
                 $orderItem->price = $item->price;
                 $orderItem->quantity = $item->qty;
                 $orderItem->save();
+
+                $product = Product::find($item->id);
+                if ($product) {
+                    $newQuantity = max(0, $product->quantity - $item->qty);
+                    $product->quantity = $newQuantity;
+                    if ($newQuantity === 0) {
+                        $product->stock_status = 'outofstock';
+                    }
+                    $product->save();
+                }
             }
 
             if($request->mode == 'card')
