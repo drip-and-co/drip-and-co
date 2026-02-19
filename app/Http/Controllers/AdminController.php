@@ -537,8 +537,17 @@ class AdminController extends Controller
 
     public function update_order_status(Request $request)
     {
-        $order = Order::find($request->order_id);
+        #$order = Order::find($request->order_id);
+
+        $order = Order::with('orderItems')->find($request->order_id);
+
+        if (!$order) {
+            return back()->with("error", "Order not found.");
+        }
+
+        $previousStatus = $order->status;
         $order->status = $request->order_status;
+
         if($request->order_status == 'delivered')
         {
             $order->delivered_date = Carbon::now();
@@ -546,11 +555,39 @@ class AdminController extends Controller
         else if($request->order_status == 'canceled')
         {
             $order->canceled_date = Carbon::now();
+
+            if ($previousStatus != 'canceled') {
+
+                foreach ($order->orderItems as $item) {
+    
+                    $product = Product::find($item->product_id);
+    
+                    if ($product) {
+                        $product->quantity += $item->quantity;
+                        $product->stock_status = 'instock';
+                        $product->save();
+                    }
+                }
+            }
         }
         $order->save();
         
         if($request->order_status == 'delivered')
         {
+            if ($previousStatus === 'canceled') {
+                foreach ($order->orderItems as $item) {
+                    $product = Product::find($item->product_id);
+                    if ($product) {
+                        $product->quantity -= $item->quantity;
+                        if ($product->quantity > 0) {
+                            $product->stock_status = 'instock';
+                        } else {
+                            $product->stock_status = 'outofstock';
+                        }
+                        $product->save();
+                    }
+                }
+            }
            $transaction = Transaction::where('order_id',$request->order_id)->first();
            $transaction->status = 'approved';
            $transaction->save();
