@@ -36,7 +36,7 @@ class AdminController extends Controller
 
         $monthlyDatas = DB::select("SELECT M.id As MonthNo, M.name As MonthName,
                             IFNULL(D.TotalAmount,0) As TotalAmount,
-                            IFNULL(D.TotalorderedAmount,0) As TotalorderedAmount,
+                            IFNULL(D.TotalOrderedAmount,0) As TotalOrderedAmount,
                             IFNULL(D.TotalDeliveredAmount,0) As TotalDeliveredAmount,
                             IFNULL(D.TotalCanceledAmount,0) As TotalCanceledAmount FROM month_names M
                             LEFT JOIN (Select DATE_FORMAT(created_at, '%b') As MonthName,
