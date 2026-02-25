@@ -24,8 +24,17 @@ class CartController extends Controller
 
     public function add_to_cart(Request $request)
     {
-        Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price)->associate('App\Models\Product');
-        return redirect()->back();
+           $product = Product::find($request->id);
+    $options = [];
+    if ($product && $request->has('size') && in_array($request->size, $product->sizes ?? [])) {
+        $options['size'] = $request->size;
+    }
+    if ($product && $request->has('color') && in_array($request->color, $product->colors ?? [])) {
+        $options['color'] = $request->color;
+    }
+    
+    Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price, $options)->associate('App\Models\Product');
+    return redirect()->back();
     }
 
     public function increase_cart_quantity($rowId)
@@ -203,6 +212,7 @@ class CartController extends Controller
                 $orderItem->order_id = $order->id;
                 $orderItem->price = $item->price;
                 $orderItem->quantity = $item->qty;
+                $orderItem->options = json_encode($item->options);
                 $orderItem->save();
 
                 $product = Product::find($item->id);
