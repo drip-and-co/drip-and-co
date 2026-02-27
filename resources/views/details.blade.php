@@ -125,9 +125,7 @@
                     <div class="product-single__short-desc">
                         <p>{{ $product->short_description }}</p>
                     </div>
-                    @if (Cart::instance('cart')->content()->where('id', $product->id)->count() > 0)
-                        <a href="{{ route('cart.index') }}" class="btn btn-warning mb-3">View Cart</a>
-                    @else
+                   
                         <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
                             @csrf
                             <div class="product-single__addtocart">
@@ -152,7 +150,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                @endif
+                      
                                 @if (!empty($product->colors))
                                     <div class="mb-3">
                                         <label class="form-label fw-medium mb-1">Color <span
@@ -502,23 +500,7 @@
                                                 class="pc__img pc__img-second">
                                         @endforeach
                                     </a>
-                                    @if (Cart::instance('cart')->content()->where('id', $rproduct->id)->count() > 0)
-                                        <a href="{{ route('cart.index') }}"
-                                            class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium btn-warning mb-3">View
-                                            Cart</a>
-                                    @else
-                                        <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
-                                            @csrf
-                                            <input type="hidden" name="id" value="{{ $rproduct->id }}" />
-                                            <input type="hidden" name="quantity" value="1" />
-                                            <input type="hidden" name="name" value="{{ $rproduct->name }}" />
-                                            <input type="hidden" name="price"
-                                                value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
-                                            <button type="submit"
-                                                class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium"
-                                                data-aside="cartDrawer" title="Add To Cart">Add To Cart</button>
-                                        </form>
-                                    @endif
+                                    
                                 </div>
 
                                 <div class="pc__info position-relative">

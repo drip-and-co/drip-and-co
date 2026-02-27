@@ -107,6 +107,9 @@
                                         <option value="L"
                                             {{ in_array('L', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>L
                                         </option>
+                                        <option value="XL"
+                                            {{ in_array('XL', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>XL
+                                        </option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
