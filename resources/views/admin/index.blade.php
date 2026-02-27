@@ -146,7 +146,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>{{$TotalAmount}}</h4>
+                                <h4>£{{number_format($TotalAmount, 2)}}</h4>
                             </div>
                         </div>
                         <div>
@@ -157,7 +157,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>{{$TotalOrderedAmount}}</h4>
+                                <h4>£{{number_format($TotalOrderedAmount, 2)}}</h4>
                             </div>
                         </div>
                         <div>
@@ -168,7 +168,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>{{$TotalDeliveredAmount}}</h4>
+                                <h4>£{{number_format($TotalDeliveredAmount, 2)}}</h4>
                             </div>
                         </div>
                         <div>
@@ -179,7 +179,7 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap10">
-                                <h4>{{$TotalCanceledAmount}}</h4>
+                                <h4>£{{number_format($TotalCanceledAmount, 2)}}</h4>
                             </div>
                         </div>
                     </div>

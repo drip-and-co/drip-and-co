@@ -97,6 +97,7 @@
                                             <option value="S">S</option>
                                             <option value="M">M</option>
                                             <option value="L">L</option>
+                                            <option value="XL">XL</option>
                                         </select>
                                         <small>Click options to select (size="3" keeps dropdown open)</small>
                                     </div>
