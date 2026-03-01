@@ -94,6 +94,8 @@
   box-sizing: border-box; }
 
 @media (prefers-reduced-motion: no-preference) {
+
+ 
   :root {
     scroll-behavior: smooth; } }
 
@@ -12658,6 +12660,11 @@ textarea.form-control-lg {
   .header_sticky-active .header-desk_type_3 {
     padding-top: 1.5rem; }
 
+/* Dark theme: sticky header uses dark green accent instead of light green */
+html[data-theme="dark"] .header_sticky-active {
+  background-color: #2B5E59;
+}
+
 .footer-top {
   padding-top: 6.2rem; }
   .footer-top .block-newsletter {
@@ -13417,6 +13424,64 @@ textarea.form-control-lg {
 .shop-sidebar {
   width: 18.75rem;
   min-width: 18.75rem; }
+
+/* Dark theme: shop filter sidebar */
+html[data-theme="dark"] .shop-sidebar {
+  background-color: #383B3C; /* match page background */
+}
+
+html[data-theme="dark"] .shop-sidebar .accordion-item,
+html[data-theme="dark"] .shop-sidebar .accordion-collapse {
+  background-color: #383B3C;
+  border-color: #4b4f50;
+}
+
+html[data-theme="dark"] .shop-sidebar .accordion-header,
+html[data-theme="dark"] .shop-sidebar .accordion-button,
+html[data-theme="dark"] .shop-sidebar .accordion-button span,
+html[data-theme="dark"] .shop-sidebar .accordion-button__icon {
+  color: #ffffff;
+}
+
+/* Ensure no dark bars: make buttons and bodies same grey as sidebar */
+html[data-theme="dark"] .shop-sidebar .accordion-button,
+html[data-theme="dark"] .shop-sidebar .accordion-button.collapsed {
+  background-color: #383B3C;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+html[data-theme="dark"] .shop-sidebar .accordion-body {
+  background-color: #383B3C;
+}
+
+/* Clear all filters button in dark mode */
+html[data-theme="dark"] .shop-sidebar .btn.btn-outline-secondary {
+  background-color: #2B5E59;
+  border-color: #2B5E59;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .shop-sidebar .btn.btn-outline-secondary:hover {
+  background-color: #234a46;
+  border-color: #234a46;
+  color: #ffffff;
+}
+
+/* Size buttons in dark mode - match Clear All Filters button */
+html[data-theme="dark"] .shop-sidebar .swatch-size {
+  background-color: #2B5E59;
+  border-color: #2B5E59;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .shop-sidebar .swatch-size:hover,
+html[data-theme="dark"] .shop-sidebar .swatch-size.btn-primary {
+  background-color: #234a46;
+  border-color: #234a46;
+  color: #ffffff;
+}
+
 
 .aside-filters .accordion-button__icon,
 .shop-sidebar .accordion-button__icon {
@@ -15553,3 +15618,289 @@ body.coming-soon-page {
     display: none; }
   .btn-video-player.playing svg.btn-pause {
     display: block; }
+
+/* ==========================================================================
+   Dark theme overrides
+   Activated when <html data-theme="dark">
+   ========================================================================== */
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+  background-color: #383B3C; /* dark grey page background */
+  color: #f9fafb; /* near‑white text */
+}
+
+html[data-theme="dark"] .bg-body {
+  background-color: #111827 !important; /* dark grey instead of white */
+}
+
+/* Shop sidebar should blend with page background, not header tone */
+html[data-theme="dark"] .shop-sidebar.bg-body {
+  background-color: #383B3C !important;
+}
+
+/* Text utilities */
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6,
+html[data-theme="dark"] .h1,
+html[data-theme="dark"] .h2,
+html[data-theme="dark"] .h3,
+html[data-theme="dark"] .h4,
+html[data-theme="dark"] .h5,
+html[data-theme="dark"] .h6,
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .section-title {
+  color: #f9fafb;
+}
+
+html[data-theme="dark"] .text-primary,
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] .link-primary,
+html[data-theme="dark"] .link-dark,
+html[data-theme="dark"] .menu-link {
+  color: #f9fafb !important;
+}
+
+html[data-theme="dark"] .text-body {
+  color: #f9fafb !important;
+}
+
+html[data-theme="dark"] .text-muted {
+  color: #9ca3af !important;
+}
+
+/* Links */
+html[data-theme="dark"] a {
+  color: #f9fafb;
+}
+
+html[data-theme="dark"] a:hover {
+  color: #fbbf24;
+}
+
+/* Header / navigation */
+html[data-theme="dark"] .header {
+  background-color: #2B5E59; /* was light green in light mode */
+}
+
+html[data-theme="dark"] .header .navigation__link,
+html[data-theme="dark"] .header .header-tools__item,
+html[data-theme="dark"] .header .header-tools__cart {
+  color: #f9fafb;
+}
+
+html[data-theme="dark"] .header-tools__item svg,
+html[data-theme="dark"] .navigation__link svg {
+  fill: currentColor;
+}
+
+html[data-theme="dark"] .header-mobile {
+  background-color: #2B5E59;
+}
+
+html[data-theme="dark"] .header-mobile__navigation {
+  background-color: #2B5E59;
+}
+
+
+html[data-theme="dark"] .form-control::placeholder,
+html[data-theme="dark"] .search-field__input::placeholder,
+html[data-theme="dark"] .search-popup__input::placeholder {
+  color: #64748b;
+}
+
+/* Quantity controls (product page, cart, mini-cart) */
+html[data-theme="dark"] .qty-control__number {
+  background-color: #2B5E59;
+  border: 2px solid #2B5E59;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .qty-control__reduce,
+html[data-theme="dark"] .qty-control__increase {
+  color: #ffffff;
+}
+
+/* Product details: size & colour selects match qty green */
+html[data-theme="dark"] .product-single__addtocart .form-select {
+  background-color: #2B5E59;
+  border-color: #2B5E59;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .product-single__addtocart .form-select:focus {
+  background-color: #234a46;
+  border-color: #234a46;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+/* Cards, dropdowns, modals, asides */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .offcanvas,
+html[data-theme="dark"] .aside,
+html[data-theme="dark"] .search-popup {
+  background-color: #383B3C;
+  color: #f9fafb;
+  border-color: #121826;
+}
+
+/* Forms & search */
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .search-field__input,
+html[data-theme="dark"] .search-popup__input {
+  background-color: #383B3C;
+  border-color: #334155;
+  color: #f9fafb;
+  -webkit-text-fill-color: #ffffff !important; 
+}
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .modal-content {
+  border-color: #1f2937;
+}
+
+/* Footer */
+html[data-theme="dark"] .footer_type_2 {
+  background-color: #2B5E59; /* darker green instead of light green */
+  color: #f9fafb;
+}
+
+html[data-theme="dark"] .footer_type_2 .sub-menu__title {
+  color: #e5e7eb;
+}
+
+html[data-theme="dark"] .footer_type_2 .menu-link {
+  color: #cbd5f5;
+}
+
+html[data-theme="dark"] .footer_type_2 .footer-bottom {
+  border-color: #1f2937;
+}
+
+/* Shop page: view (2,3,4) links */
+html[data-theme="dark"] .shop-acs .btn-link {
+  color: #f9fafb;
+}
+
+/* Home page white content panel */
+html[data-theme="dark"] .mw-1620.bg-white {
+  background-color: #383B3C !important; /* match page dark grey */
+}
+
+html[data-theme="dark"] .category-banner__item-content {
+  background-color: #2B5E59 !important; /* match page dark grey */
+}
+
+
+/*Contact Us Form*/
+
+html[data-theme="dark"] .contact-us__form {
+  background-color: #383B3C !important; /* match page dark grey */
+}
+
+html[data-theme="dark"] .form-control {
+  background-color: #383B3C !important;
+  border-color: #ffffff !important;
+  -webkit-text-fill-color: transparent !important; 
+
+}
+
+html[data-theme="dark"] .form-floating > label {
+  background-color: #383B3C !important; /* Teal bg */
+  color: #ffffff !important;
+  
+  
+}
+
+html[data-theme="dark"] .btn-primary{
+  background-color: #2B5E59 !important;
+  border-color: #2B5E59 !important;
+
+}
+
+/*Login and Registration*/
+
+html[data-theme="dark"] .form-control_gray{
+  background-color: #383B3C !important;
+  border-color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important; 
+
+  
+}
+
+html[data-theme="dark"] .text-secondary{
+  color: #ffffff !important;
+  
+}
+
+html[data-theme="dark"] .login-register .nav-tabs .nav-link {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .m-0{
+  color: #ffffff !important;
+}
+
+
+/* Hero background */
+html[data-theme="dark"] .gradient-bg {
+  background-image: none;
+  background-color: #383B3C; /* match page dark grey */
+}
+
+/* Tables & separators */
+html[data-theme="dark"] hr,
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start,
+html[data-theme="dark"] .border-end,
+html[data-theme="dark"] .table,
+html[data-theme="dark"] .shopping-cart .cart-table tbody tr {
+  border-color: #1f2937 !important;
+}
+
+/*Wishlist and Cart Button*/
+html[data-theme="dark"] .btn-info {
+  background-color: #2B5E59; 
+  border-color: #2B5E59 !important;
+}
+
+html[data-theme="dark"] .btn-light {
+  background-color: #2B5E59; 
+  border-color: #2B5E59 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .btn-link {
+  color: #ffffff !important;
+}
+
+
+/*User Order Table*/
+
+html[data-theme="dark"] table td,
+html[data-theme="dark"] table th {
+  background: #383B3C !important;
+  color: #ffffff !important;
+}
+
+/* Scrollbars */
+html[data-theme="dark"] body ::-webkit-scrollbar {
+  background-color: #383B3C;
+}
+
+html[data-theme="dark"] body ::-webkit-scrollbar-thumb {
+  background-color: #334155;
+}
