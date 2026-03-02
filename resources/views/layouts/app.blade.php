@@ -30,6 +30,128 @@
         .footer-column-extra .sub-menu__title {
             color: #deefe7 !important;
         }
+
+        /* Search input + dropdown contrast tweaks */
+        html[data-theme="light"] .search-field__input {
+            background-color: #f1f1f1;
+            border: 1px solid #c9c9c9;
+            color: #1b1b18;
+        }
+
+        html[data-theme="dark"] .search-field__input {
+            background-color: #1e1e1e;
+            border: 1px solid #3e3e3a;
+            color: #ededec;
+        }
+
+        .search-field__input::placeholder {
+            color: #8b8b86;
+        }
+
+        html[data-theme="dark"] .search-field__input::placeholder {
+            color: #a1a09a;
+        }
+
+        /* Desktop search popup panel */
+        .search-popup {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
+        }
+
+        html[data-theme="dark"] .search-popup {
+            background: rgba(14, 14, 14, 0.96);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Results box under search in popup */
+        .search-popup__results {
+            margin-top: 14px;
+            padding: 10px 0 4px;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        html[data-theme="dark"] .search-popup__results {
+            border-top-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #box-content-search {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        #box-content-search .product-item {
+            padding: 8px 4px;
+            border-radius: 8px;
+            background: transparent;
+        }
+
+        html[data-theme="light"] #box-content-search .product-item:hover {
+            background: #f5f7fb;
+        }
+
+        html[data-theme="dark"] #box-content-search .product-item:hover {
+            background: #1f2229;
+        }
+
+        /* Mobile search dropdown results */
+        .search-result {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 10px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+            padding: 10px 12px;
+        }
+
+        html[data-theme="dark"] .search-result {
+            background: rgba(10, 10, 10, 0.98);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Product card category label */
+        html[data-theme="light"] .pc__category {
+            color: #9b9b95;
+        }
+
+        html[data-theme="dark"] .pc__category {
+            color: #c0c0ba;
+        }
+
+        /* Wishlist heart default (non-active) */
+        html[data-theme="light"] .pc__btn-wl:not(.filled-heart) svg {
+            color: #aaaaa4;
+        }
+
+        html[data-theme="dark"] .pc__btn-wl:not(.filled-heart) svg {
+            color: #c4c4be;
+        }
+
+        /* Wishlist "View Product" button dark variant */
+        html[data-theme="dark"] .btn-wishlist-view {
+            background-color: #2B5E59;
+            border-color: #2B5E59;
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .btn-wishlist-view:hover {
+            background-color: #234a46;
+            border-color: #234a46;
+            color: #ffffff;
+        }
+
+        /* Make all dropdown / accordion arrows white */
+        .accordion-button__icon {
+            fill: #ffffff !important;
+            color: #ffffff !important;
+        }
+
+        /* Shop page select dropdown arrows (Show / Default) */
+        .shop-acs__select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat;
+            background-position: right center;
+            background-size: 10px 10px;
+        }
     </style>
 
 
@@ -310,13 +432,16 @@
                 </a>
             </div>
 
-            <a href="#" class="header-tools__item header-tools__cart js-open-aside" data-aside="cartDrawer">
-                <svg class="d-block" width="20" height="20" viewBox="0 0 20 20" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <use href="#icon_cart" />
-                </svg>
-                <span class="cart-amount d-block position-absolute js-cart-items-count">3</span>
-            </a>
+              <a href="{{ route('cart.index') }}" class="header-tools__item header-tools__cart">
+                        <svg class="d-block" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <use href="#icon_cart" />
+                        </svg>
+                        @if (Cart::instance('cart')->content()->count() > 0)
+                            <span
+                                class="cart-amount d-block position-absolute js-cart-items-count">{{ Cart::instance('cart')->content()->count() }}</span>
+                        @endif
+                    </a>
 
 
         </div>
