@@ -36,7 +36,7 @@
                     </div>
                     </td>
                     <td>
-                    <span class="shopping-cart__product-price">${{$item->price}}</span>
+                    <span class="shopping-cart__product-price">£{{$item->price}}</span>
                     </td>
                     <td>
                         {{$item->qty}}
@@ -44,10 +44,7 @@
                     <td>
                       <div class="row">
                         <div class="col-6">
-                          <form method="POST" action="{{route('wishlist.move.to.cart',['rowId'=>$item->rowId])}}">
-                            @csrf
-                            <button type="submit" class="btn btn-sm btn-warning">Move to Cart</button>
-                          </form>
+                         <a href="{{ route('shop.product.details', ['product_slug' => $item->options->slug ?? $item->model->slug]) }}" class="btn btn-sm btn-warning">View Product</a>
                         </div>
                       <div class="col-6">
                           <form method="POST" action="{{route('wishlist.item.remove',['rowId'=>$item->rowId])}}" id="remove-item-{{$item->id}}">

@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+   body { 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    main { flex: 1; }
+    .container { margin-top: 100px; } 
+  </style>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">

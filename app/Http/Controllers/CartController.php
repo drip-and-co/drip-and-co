@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Address;
 use App\Models\Coupon;
+use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
@@ -23,8 +24,17 @@ class CartController extends Controller
 
     public function add_to_cart(Request $request)
     {
-        Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price)->associate('App\Models\Product');
-        return redirect()->back();
+           $product = Product::find($request->id);
+    $options = [];
+    if ($product && $request->has('size') && in_array($request->size, $product->sizes ?? [])) {
+        $options['size'] = $request->size;
+    }
+    if ($product && $request->has('color') && in_array($request->color, $product->colors ?? [])) {
+        $options['color'] = $request->color;
+    }
+    
+    Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price, $options)->associate('App\Models\Product');
+    return redirect()->back();
     }
 
     public function increase_cart_quantity($rowId)
@@ -123,7 +133,24 @@ class CartController extends Controller
         }
 
         $address = Address::where('user_id',Auth::user()->id)->where('isdefault',1)->first();
-        return view('checkout', compact('address'));
+
+        // Build stock warnings and available quantities per product for the view
+        $stockWarnings = [];
+        $availableByProduct = [];
+        foreach (Cart::instance('cart')->content() as $item) {
+            $product = Product::find($item->id);
+            $available = $product ? (int) $product->quantity : 0;
+            $availableByProduct[$item->id] = $available;
+            if ($available < (int) $item->qty) {
+                $stockWarnings[] = [
+                    'name'      => $item->name,
+                    'requested' => (int) $item->qty,
+                    'available' => $available,
+                ];
+            }
+        }
+
+        return view('checkout', compact('address', 'stockWarnings', 'availableByProduct'));
     }
 
     public function place_an_order(Request $request)
@@ -135,12 +162,13 @@ class CartController extends Controller
                 $request->validate([
                     'name' => 'required|max:100',
                     'phone' => 'required|numeric|digits:10',
-                    'zip' => 'required|numeric|digits:6',
+                    'zip' => ['required', 'regex:/^([A-Z]{1,2}[0-9]{1,2}[A-Z]?(?:\s?[0-9][A-Z]{2})?)$/i'],
                     'state' => 'required',
                     'city' => 'required',
                     'address' => 'required',
                     'locality' => 'required',
-                    'landmark' => 'required',
+                    'mode' => 'required|in:card,paypal,cod'
+        
                 ]);
 
                 $address = new Address();
@@ -151,7 +179,6 @@ class CartController extends Controller
                 $address->city = $request->city;
                 $address->address = $request->address;
                 $address->locality = $request->locality;
-                $address->landmark = $request->landmark;
                 $address->country = 'United Kingdom';
                 $address->user_id = $user_id;
                 $address->isdefault = true;
@@ -164,10 +191,10 @@ class CartController extends Controller
             $order = new Order();
 
             $order->user_id = $user_id;
-            $order->subtotal = Session::get('checkout')['subtotal'];
-            $order->discount = Session::get('checkout')['discount'];
-            $order->tax = Session::get('checkout')['tax'];
-            $order->total = Session::get('checkout')['total'];
+            $order->subtotal = $order->total = (float) str_replace(',', '', Session::get('checkout')['subtotal']);;
+            $order->discount = $order->total = (float) str_replace(',', '', Session::get('checkout')['discount']);;
+            $order->tax = $order->total = (float) str_replace(',', '', Session::get('checkout')['tax']);;
+            $order->total = $order->total = (float) str_replace(',', '', Session::get('checkout')['total']);;
             $order->name = $address->name;
             $order->phone = $address->phone;
             $order->locality = $address->locality;
@@ -175,7 +202,6 @@ class CartController extends Controller
             $order->city = $address->city;
             $order->state = $address->state;
             $order->country = $address->country;
-            $order->landmark = $address->landmark;
             $order->zip = $address->zip;
             $order->save();
 
@@ -186,16 +212,37 @@ class CartController extends Controller
                 $orderItem->order_id = $order->id;
                 $orderItem->price = $item->price;
                 $orderItem->quantity = $item->qty;
+                $orderItem->options = json_encode($item->options);
                 $orderItem->save();
+
+                $product = Product::find($item->id);
+                if ($product) {
+                    $newQuantity = max(0, $product->quantity - $item->qty);
+                    $product->quantity = $newQuantity;
+                    if ($newQuantity === 0) {
+                        $product->stock_status = 'outofstock';
+                    }
+                    $product->save();
+                }
             }
 
             if($request->mode == 'card')
                 {
-                    // Integrate with payment gateway and update transaction status accordingly
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user_id;
+                    $transaction->order_id = $order->id;
+                    $transaction->mode = $request->mode;
+                    $transaction->status = 'pending';
+                    $transaction->save();
                 }
             elseif($request->mode == 'paypal')
                 {
-                    // Integrate with PayPal and update transaction status accordingly
+                    $transaction = new Transaction();
+                    $transaction->user_id = $user_id;
+                    $transaction->order_id = $order->id;
+                    $transaction->mode = $request->mode;
+                    $transaction->status = 'pending';
+                    $transaction->save();
                 }
             elseif($request->mode == 'cod')
                 {

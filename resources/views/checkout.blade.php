@@ -3,37 +3,56 @@
   <main class="pt-90">
     <div class="mb-4 pb-4"></div>
     <section class="shop-checkout container">
-      <h2 class="page-title">Shipping and Checkout</h2>
+      <h2 class="page-title">Delivery and Checkout</h2>
       <div class="checkout-steps">
         <a href="{{ route('cart.index') }}" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">01</span>
           <span class="checkout-steps__item-title">
             <span>Shopping Bag</span>
-            <em>Manage Your Items List</em>
+            <em>Manage Your Items</em>
           </span>
         </a>
         <a href="javascript:void(0)" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">02</span>
           <span class="checkout-steps__item-title">
-            <span>Shipping and Checkout</span>
-            <em>Checkout Your Items List</em>
+            <span>Delivery and Checkout</span>
+            <em>Checkout Your Items</em>
           </span>
         </a>
         <a href="javascript:void(0)" class="checkout-steps__item">
           <span class="checkout-steps__item-number">03</span>
           <span class="checkout-steps__item-title">
             <span>Confirmation</span>
-            <em>Review And Submit Your Order</em>
+            <em>Review Your Order</em>
           </span>
         </a>
       </div>
+      @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ session('error') }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      @endif
+
+      @if(!empty($stockWarnings))
+        <div class="alert alert-warning mb-4" role="alert">
+          <strong>Insufficient stock</strong>
+          <p class="mb-0 mt-2">The following items have more quantity in your cart than we have in stock. Please <a href="{{ route('cart.index') }}">update your cart</a> or reduce quantities before placing your order.</p>
+          <ul class="mb-0 mt-2">
+            @foreach($stockWarnings as $w)
+              <li><strong>{{ $w['name'] }}</strong>: you have <strong>{{ $w['requested'] }}</strong> in cart, only <strong>{{ $w['available'] }}</strong> available.</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+  
       <form name="checkout-form" action="{{ route('cart.place.an.order') }}" method="POST">
         @csrf
         <div class="checkout-form">
           <div class="billing-info__wrapper">
             <div class="row">
               <div class="col-6">
-                <h4>SHIPPING DETAILS</h4>
+                <h4>DELIVERY DETAILS</h4>
               </div>
               <div class="col-6">
               </div>
@@ -45,9 +64,8 @@
                       <div class="my-account__address-list-item">
                         <div class="my-account__address-item__detail">
                           <p>{{ $address->name }}</p>
-                          <p>{{ $address->address }}</p>
-                          <p>{{ $address->landmark }}</p>
-                          <p>{{ $address->city }}</p>
+                          <p>{{ $address->address }} {{ $address->locality }}</p>
+                          <p>{{ $address->city }}, {{ $address->state }}</p>
                           <p>{{ $address->zip }}</p>
                           <br>
                           <p>{{ $address->phone }}</p>
@@ -76,14 +94,14 @@
               <div class="col-md-4">
                 <div class="form-floating my-3">
                   <input type="text" class="form-control" name="zip" required="" value="{{ old('zip') }}">
-                  <label for="zip">Pincode *</label>
-                  @error('zip')<span class="text-danger">{{ $message }}</span>@enderror
+                  <label for="zip">Postcode *</label>
+                  @error('zip')<span class="text-danger">Please enter a valid postcode (e.g., B4 7ET)</span>@enderror
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="form-floating mt-3 mb-3">
                   <input type="text" class="form-control" name="state" required="" value="{{ old('state') }}">
-                  <label for="state">State *</label>
+                  <label for="state">County *</label>
                   @error('state')<span class="text-danger">{{ $message }}</span>@enderror
                 </div>
               </div>
@@ -104,15 +122,8 @@
               <div class="col-md-6">
                 <div class="form-floating my-3">
                   <input type="text" class="form-control" name="locality" required="" value="{{ old('locality') }}">
-                  <label for="locality">Road Name, Area, Colony *</label>
+                  <label for="locality">Road Name, Area *</label>
                   @error('locality')<span class="text-danger">{{ $message }}</span>@enderror
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="form-floating my-3">
-                  <input type="text" class="form-control" name="landmark" required="" value="{{ old('landmark') }}">
-                  <label for="landmark">Landmark *</label>
-                  @error('landmark')<span class="text-danger">{{ $message }}</span>@enderror
                 </div>
               </div>
             </div>
@@ -131,9 +142,15 @@
                   </thead>
                   <tbody>
                     @foreach (Cart::instance('cart') as $item)
+                    @php $available = $availableByProduct[$item->id] ?? 0; @endphp
                     <tr>
                       <td>
                         {{ $item->name }} x {{ $item->qty }}
+                        @if($available < $item->qty)
+                          <div class="text-danger small mt-1">
+                            Only {{ $available }} in stock. Reduce quantity in <a href="{{ route('cart.index') }}">cart</a>.
+                          </div>
+                        @endif
                       </td>
                       <td class="text-right">
                         {{ $item->subtotal() }}
@@ -147,15 +164,15 @@
                   <tbody>
                   <tr>
                     <th>Subtotal</th>
-                    <td class="text-right">${{Cart::instance('cart')->subtotal()}}</td>
+                    <td class="text-right">£{{Cart::instance('cart')->subtotal()}}</td>
                   </tr>
                   <tr>
                     <th>Discount {{ Session::get('coupon')['code'] }}</th>
-                    <td class="text-right">${{Session::get('discounts')['discount']}}</td>
+                    <td class="text-right">£{{Session::get('discounts')['discount']}}</td>
                   </tr>
                   <tr>
                     <th>Subtotal After Discount</th>
-                    <td class="text-right">${{Session::get('discounts')['subtotal']}}</td>
+                    <td class="text-right">£{{Session::get('discounts')['subtotal']}}</td>
                   </tr>
                   <tr>
                     <th>Shipping</th>
@@ -163,11 +180,11 @@
                   </tr>
                   <tr>
                     <th>VAT</th>
-                    <td class="text-right">${{Session::get('discounts')['tax']}}</td>
+                    <td class="text-right">£{{Session::get('discounts')['tax']}}</td>
                   </tr>
                   <tr>
                     <th>Total</th>
-                    <td class="text-right">${{Session::get('discounts')['total']}}</td>
+                    <td class="text-right">£{{Session::get('discounts')['total']}}</td>
                   </tr>
                 </tbody>
                 </table>
@@ -176,19 +193,19 @@
                   <tbody>
                     <tr>
                       <th>SUBTOTAL</th>
-                      <td class="text-right">${{ Cart::instance('cart')->subtotal() }}</td>
+                      <td class="text-right">£{{ Cart::instance('cart')->subtotal() }}</td>
                     </tr>
                     <tr>
-                      <th>SHIPPING</th>
-                      <td class="text-right">Free shipping</td>
+                      <th>DELIVERY</th>
+                      <td class="text-right">Free</td>
                     </tr>
                     <tr>
                       <th>VAT</th>
-                      <td class="text-right">${{ Cart::instance('cart')->tax() }}</td>
+                      <td class="text-right">£{{ Cart::instance('cart')->tax() }}</td>
                     </tr>
                     <tr>
                       <th>TOTAL</th>
-                      <td class="text-right">${{ Cart::instance('cart')->total() }}</td>
+                      <td class="text-right">£{{ Cart::instance('cart')->total() }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -197,21 +214,21 @@
               <div class="checkout__payment-methods">
                 
                 <div class="form-check">
-                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode1" value="card">
+                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode1" value="card" required>
                   <label class="form-check-label" for="mode1">
                     Debit or Credit Card                    
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode2" value="paypal">
+                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode2" value="paypal" required>
                   <label class="form-check-label" for="mode2">
                     Paypal
                   </label>
                 </div>
                 <div class="form-check">
-                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode3" value="cod">
+                  <input class="form-check-input form-check-input_fill" type="radio" name="mode" id="mode3" value="cod" required>
                   <label class="form-check-label" for="mode3">
-                    Cash on delivery                    
+                    Cash on Delivery                    
                   </label>
                 </div>
 
@@ -221,7 +238,10 @@
                     policy</a>.
                 </div>
               </div>
-              <button class="btn btn-primary btn-checkout">PLACE ORDER</button>
+              <button type="submit" class="btn btn-primary btn-checkout" @if(!empty($stockWarnings)) disabled title="Reduce quantities in your cart first" @endif>PLACE ORDER</button>
+                @if(!empty($stockWarnings))
+                  <p class="text-danger small mt-2 mb-0">Please update your cart to fix stock issues before placing your order.</p>
+                @endif
             </div>
           </div>
         </div>

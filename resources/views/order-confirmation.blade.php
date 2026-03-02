@@ -9,21 +9,21 @@
           <span class="checkout-steps__item-number">01</span>
           <span class="checkout-steps__item-title">
             <span>Shopping Bag</span>
-            <em>Manage Your Items List</em>
+            <em>Manage Your Items</em>
           </span>
         </a>
         <a href="javascript:void(0)" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">02</span>
           <span class="checkout-steps__item-title">
-            <span>Shipping and Checkout</span>
-            <em>Checkout Your Items List</em>
+            <span>Delivery and Checkout</span>
+            <em>Checkout Your Items</em>
           </span>
         </a>
         <a href="javascript:void(0)" class="checkout-steps__item active">
           <span class="checkout-steps__item-number">03</span>
           <span class="checkout-steps__item-title">
             <span>Confirmation</span>
-            <em>Review And Submit Your Order</em>
+            <em>Review Your Order</em>
           </span>
         </a>
       </div>
@@ -49,7 +49,7 @@
           </div>
           <div class="order-info__item">
             <label>Total</label>
-            <span>${{ $order->total }}</span>
+            <span>£{{ $order->total }}</span>
           </div>
           <div class="order-info__item">
             <label>Payment Method</label>
@@ -73,7 +73,7 @@
                     {{ $item->product->name }} x {{ $item->quantity }}
                   </td>
                   <td class="text-right">
-                    ${{ $item->price }}
+                    £{{ $item->price }}
                   </td>
                 </tr>
                 @endforeach
@@ -83,23 +83,23 @@
               <tbody>
                 <tr>
                   <th>SUBTOTAL</th>
-                  <td class="text-right">${{ $order->subtotal }}</td>
+                  <td class="text-right">£{{ $order->subtotal }}</td>
                 </tr>
                 <tr>
                   <th>DISCOUNT</th>
-                  <td class="text-right">${{ $order->discount }}</td>
+                  <td class="text-right">£{{ $order->discount }}</td>
                 </tr>
                 <tr>
-                  <th>SHIPPING</th>
-                  <td class="text-right">Free shipping</td>
+                  <th>DELIVERY</th>
+                  <td class="text-right">Free</td>
                 </tr>
                 <tr>
                   <th>VAT</th>
-                  <td class="text-right">${{ $order->tax }}</td>
+                  <td class="text-right">£{{ $order->tax }}</td>
                 </tr>
                 <tr>
                   <th>TOTAL</th>
-                  <td class="text-right">${{ $order->total }}</td>
+                  <td class="text-right">£{{ $order->total }}</td>
                 </tr>
               </tbody>
             </table>

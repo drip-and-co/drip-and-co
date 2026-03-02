@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+   body { 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    main { flex: 1; }
+    
+  </style>
 
 <main class="pt-90">
     <div class="mb-4 pb-4"></div>
@@ -42,7 +51,7 @@
 
               <div class="customer-option mt-4 text-center">
                 <span class="text-secondary">No account yet?</span>
-                <a href="{{ route('register') }}" class="btn-text js-show-register">Create Account</a> |
+                <a href="{{ route('register') }}" class="btn-text js-show-register">Create Account</a> | <a href="{{ route('password.request') }}" class="btn-text js-show-register">Forgot Password</a>
               </div>
             </form>
           </div>
