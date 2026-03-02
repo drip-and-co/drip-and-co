@@ -19,6 +19,11 @@ class Product extends Model
         return $this->belongsTo(Brand::class, 'brand_id');
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
+
     public function getSizesAttribute($value)
     {
         return $value ? explode(',', trim($value, ',')) : [];
