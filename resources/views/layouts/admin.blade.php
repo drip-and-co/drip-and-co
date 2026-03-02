@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="light">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -220,7 +220,7 @@
                             </div>
                             <div class="header-grid">
 
-                                <div class="popup-wrap user type-header">
+                                <div class="popup-wrap user type-header d-flex align-items-center gap-3">
                                     <div class="dropdown">
                                         <button class="btn btn-secondary dropdown-toggle" type="button"
                                             id="dropdownMenuButton3" data-bs-toggle="dropdown" aria-expanded="false">
@@ -236,6 +236,19 @@
                                             </span>
                                         </button>
                                     </div>
+
+                                    <a href="#" class="header-toolsitem header-toolstheme js-theme-toggle"
+                                        title="Toggle theme">
+                                        <svg class="theme-icon-sun" width="20" height="20" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path
+                                                d="M10 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1z" />
+                                        </svg>
+                                        <svg class="theme-icon-moon" width="20" height="20" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                                        </svg>
+                                    </a>
                                 </div>
 
                             </div>
@@ -258,23 +271,24 @@
     <script src="{{ asset('js/main.js') }}"></script>
 
     <script>
-    $(function(){
-      $("#search-input").on("keyup", function(){
-        var searchQuery = $(this).val();
-        if(searchQuery.length > 2)
-        {
-          $.ajax({
-            type: "GET",
-            url: "{{ route('admin.search') }}",
-            data: { query: searchQuery },
-            dataType: "json",
-            success: function(data) {
-              $("#box-content-search").html('');
-              $.each(data, function(index, item) {
-                var url = "{{ route('admin.product.edit', ['id' => 'product_id'])}}";
-                var link = url.replace('product_id', item.id);
+        $(function() {
+            $("#search-input").on("keyup", function() {
+                var searchQuery = $(this).val();
+                if (searchQuery.length > 2) {
+                    $.ajax({
+                        type: "GET",
+                        url: "{{ route('admin.search') }}",
+                        data: {
+                            query: searchQuery
+                        },
+                        dataType: "json",
+                        success: function(data) {
+                            $("#box-content-search").html('');
+                            $.each(data, function(index, item) {
+                                var url = "{{ route('admin.product.edit', ['id' => 'product_id'])}}";
+                                var link = url.replace('product_id', item.id);
 
-                $("#box-content-search").append(`
+                                $("#box-content-search").append(`
                 <li>
                   <ul>
                      <li class="product-item gap14 mb-10">
@@ -291,19 +305,57 @@
                        <div class="divider"></div>
                     </li>
                   </ul>
-               </li>`
-              );
-           });
-         }
+               </li>`);
+                            });
+                        }
 
-          });
+                    });
 
-        }
+                }
 
-      });
-    });
-  </script>
-    
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const html = document.documentElement;
+            const toggle = document.querySelector('.js-theme-toggle');
+            const sunIcon = document.querySelector('.theme-icon-sun');
+            const moonIcon = document.querySelector('.theme-icon-moon');
+
+            function setTheme(theme) {
+                html.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+
+                if (!sunIcon || !moonIcon) {
+                    return;
+                }
+
+                if (theme === 'dark') {
+                    sunIcon.style.display = 'block';
+                    moonIcon.style.display = 'none';
+                } else {
+                    sunIcon.style.display = 'none';
+                    moonIcon.style.display = 'block';
+                }
+            }
+
+            const savedTheme = localStorage.getItem('theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            setTheme(savedTheme);
+
+            if (toggle) {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const current = html.getAttribute('data-theme');
+                    const newTheme = current === 'dark' ? 'light' : 'dark';
+                    setTheme(newTheme);
+                });
+            }
+        });
+    </script>
+
     @stack("scripts")
 </body>
 </html>

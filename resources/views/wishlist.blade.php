@@ -44,7 +44,7 @@
                     <td>
                       <div class="row">
                         <div class="col-6">
-                         <a href="{{ route('shop.product.details', ['product_slug' => $item->options->slug ?? $item->model->slug]) }}" class="btn btn-sm btn-warning">View Product</a>
+                         <a href="{{ route('shop.product.details', ['product_slug' => $item->options->slug ?? $item->model->slug]) }}" class="btn btn-sm btn-warning btn-wishlist-view">View Product</a>
                         </div>
                       <div class="col-6">
                           <form method="POST" action="{{route('wishlist.item.remove',['rowId'=>$item->rowId])}}" id="remove-item-{{$item->id}}">
