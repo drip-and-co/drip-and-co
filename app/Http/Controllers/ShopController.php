@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use App\Models\Review;
 
 class ShopController extends Controller
 {
@@ -73,8 +74,29 @@ class ShopController extends Controller
 
     public function product_details($product_slug)
     {
-        $product = Product::where('slug', $product_slug)->first();
-        $rproducts = Product::where('slug', '<>', $product_slug)->get()->take(8);
-        return view('details', compact('product', 'rproducts'));
+        $product = Product::with('reviews')->where('slug',$product_slug)->first();
+        $rproducts = Product::where('slug','<>',$product_slug)->take(8)->get();
+        return view('details',compact('product','rproducts'));
+    }
+
+    public function store_review(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'name' => 'required',
+            'email' => 'required|email',
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'required'
+        ]);
+
+        Review::create([
+            'product_id' => $request->product_id,
+            'name' => $request->name,
+            'email' => $request->email,
+            'rating' => $request->rating,
+            'review' => $request->review,
+        ]);
+
+        return back()->with('success', 'Review submitted successfully!');
     }
 }
