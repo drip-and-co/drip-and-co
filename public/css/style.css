@@ -480,6 +480,19 @@ html[data-theme="dark"] .section-content-right select[multiple] option {
   color: #e5e7eb;
 }
 
+/* Ensure selected options remain visibly highlighted */
+.section-content-right select[multiple] option:checked,
+.section-content-right select.form-select[multiple] option:checked {
+  background-color: #2B5E59;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .section-content-right select[multiple] option:checked,
+html[data-theme="dark"] .section-content-right select.form-select[multiple] option:checked {
+  background-color: #2B5E59;
+  color: #ffffff;
+}
+
 /* Admin header search bar */
 html[data-theme="dark"] .section-content-right .header-dashboard .form-search input.show-search {
   background-color: #111827;

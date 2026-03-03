@@ -96,7 +96,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Sizes</label>
-                                    <select name="sizes[]" class="form-select" multiple size="3"
+                                    <select name="sizes[]" class="form-select js-multi-no-range" multiple size="3"
                                         style="height: 100px;">
                                         <option value="S"
                                             {{ in_array('S', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>S
@@ -111,10 +111,11 @@
                                             {{ in_array('XL', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>XL
                                         </option>
                                     </select>
+                                    <small>Choose options (Shift click to select multiple options)</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Colors</label>
-                                    <select name="colors[]" class="form-select" multiple size="5"
+                                    <select name="colors[]" class="form-select js-multi-no-range" multiple size="5"
                                         style="height: 120px;">
                                         <option value="White"
                                             {{ in_array('White', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
@@ -132,6 +133,7 @@
                                             {{ in_array('Pink', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
                                             Pink</option>
                                     </select>
+                                    <small>Choose options (Shift click to select multiple options)</small>
                                 </div>
                             </div>
                             <fieldset class="shortdescription">

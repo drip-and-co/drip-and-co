@@ -718,12 +718,20 @@ public function user_update(Request $request, $id)
 {
     $user = User::findOrFail($id);
 
-    $request->validate([
-        'name'   => 'required|string|max:255',
-        'mobile' => 'nullable|string|max:50',
-        'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
-        'password' => 'nullable|min:8|confirmed', // confirmed = needs password_confirmation
-    ]);
+    $request->validate(
+        [
+            'name'   => 'required|string|max:255',
+            'mobile' => 'nullable|string|max:50',
+            'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|contains_number|contains_uppercase|confirmed', // confirmed = needs password_confirmation
+        ],
+        [
+            'password.min' => 'Password must be at least 8 characters.',
+            'password.contains_number' => 'Password must include at least 1 number.',
+            'password.contains_uppercase' => 'Password must include at least 1 capital letter.',
+            'password.confirmed' => 'Password confirmation does not match.',
+        ]
+    );
 
     $user->name = $request->name;
     $user->mobile = $request->mobile;

@@ -22,10 +22,18 @@ class UserPasswordController extends Controller
     public function update(Request $request)
     {
         // Validate input
-        $request->validate([
-            'current_password' => ['required'],
-            'new_password'     => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+        $request->validate(
+            [
+                'current_password' => ['required'],
+                'new_password'     => ['required', 'string', 'min:8', 'contains_number', 'contains_uppercase', 'confirmed'],
+            ],
+            [
+                'new_password.min' => 'Password must be at least 8 characters.',
+                'new_password.contains_number' => 'Password must include at least 1 number.',
+                'new_password.contains_uppercase' => 'Password must include at least 1 capital letter.',
+                'new_password.confirmed' => 'Password confirmation does not match.',
+            ]
+        );
 
         $user = Auth::user();
 

@@ -20,8 +20,22 @@
             color: orange;
         }
 
+        /* Color filter swatches: coloured center with ring */
+        .swatch-color {
+            display: inline-block;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        /* When selected, grey ring becomes black */
         .swatch-color.swatch_active {
-            border: 3px solid #000 !important;
+            border-color: #000 !important;
+        }
+
+        /* Dark mode: brighter, thicker ring when selected */
+        html[data-theme="dark"] .swatch-color.swatch_active {
+            border-color: #f5e6e0 !important;
+            box-shadow: 0 0 0 2px #f5e6e0;
         }
     </style>
 
@@ -533,77 +547,86 @@
         }
 
         $(function() {
-            $("#pagesize").on("change", function() {
-                $("#size").val($("#pagesize option:selected").val());
-                $("#frmfilter").submit();
-            });
-
-            $("#orderby").on("change", function() {
-                $("#order").val($("#orderby option:selected").val());
-                $("#frmfilter").submit();
-            });
-
-            $("input[name='brands']").on("change", function() {
-                var brands = "";
+            function syncHiddenInputsFromUI() {
+                var brands = [];
                 $("input[name='brands']:checked").each(function() {
-                    if (brands == "") {
-                        brands += $(this).val();
-                    } else {
-                        brands += "," + $(this).val();
-                    }
+                    brands.push($(this).val());
                 });
-                $("#hdnBrands").val(brands);
-                $("#frmfilter").submit();
-            });
+                $("#hdnBrands").val(brands.join(','));
 
-
-            $("input[name='categories']").on("change", function() {
-                var categories = "";
+                var categories = [];
                 $("input[name='categories']:checked").each(function() {
-                    if (categories == "") {
-                        categories += $(this).val();
-                    } else {
-                        categories += "," + $(this).val();
-                    }
+                    categories.push($(this).val());
                 });
-                $("#hdnCategories").val(categories);
-                $("#frmfilter").submit();
-            });
+                $("#hdnCategories").val(categories.join(','));
 
-            $("[name='price_range']").on("change", function() {
-                var min = $(this).val().split(',')[0];
-                var max = $(this).val().split(',')[1];
-                $("#hdnMinPrice").val(min);
-                $("#hdnMaxPrice").val(max);
-                setTimeout(() => {
-                    $("#frmfilter").submit();
-                }, 2000);
-            });
-
-            $('.swatch-size').on('click', function(e) {
-                e.preventDefault();
                 var selectedSizes = [];
-                $('.swatch-size').removeClass('btn-primary').addClass('btn-outline-light');
-                $(this).removeClass('btn-outline-light').addClass('btn-primary');
-
                 $('.swatch-size.btn-primary').each(function() {
-                    selectedSizes.push($(this).text());
+                    selectedSizes.push($(this).text().trim());
                 });
                 $('#hdnSizes').val(selectedSizes.join(','));
-                $('#frmfilter').submit();
-            });
-
-            $('.swatch-color').on('click', function(e) {
-                e.preventDefault();
-                $('.swatch-color').removeClass('swatch_active');
-                $(this).addClass('swatch_active');
 
                 var selectedColors = [];
                 $('.swatch-color.swatch_active').each(function() {
                     selectedColors.push($(this).data('color'));
                 });
                 $('#hdnColors').val(selectedColors.join(','));
-                $('#frmfilter').submit();
+
+                var priceVal = $("[name='price_range']").val();
+                if (priceVal && priceVal.includes(',')) {
+                    var parts = priceVal.split(',');
+                    $("#hdnMinPrice").val(parts[0]);
+                    $("#hdnMaxPrice").val(parts[1]);
+                }
+            }
+
+            function applyFilters() {
+                // Any filter change should reset paging.
+                $("#frmfilter input[name='page']").val(1);
+                syncHiddenInputsFromUI();
+                $("#frmfilter").submit();
+            }
+
+            $("#pagesize").on("change", function() {
+                $("#size").val($("#pagesize option:selected").val());
+                applyFilters();
+            });
+
+            $("#orderby").on("change", function() {
+                $("#order").val($("#orderby option:selected").val());
+                applyFilters();
+            });
+
+            $("input[name='brands']").on("change", function() {
+                applyFilters();
+            });
+
+
+            $("input[name='categories']").on("change", function() {
+                applyFilters();
+            });
+
+            $("[name='price_range']").on("change", function() {
+                setTimeout(() => {
+                    applyFilters();
+                }, 2000);
+            });
+
+            $('.swatch-size').on('click', function(e) {
+                e.preventDefault();
+                $(this).toggleClass('btn-primary');
+                if ($(this).hasClass('btn-primary')) {
+                    $(this).removeClass('btn-outline-light');
+                } else {
+                    $(this).addClass('btn-outline-light');
+                }
+                applyFilters();
+            });
+
+            $('.swatch-color').on('click', function(e) {
+                e.preventDefault();
+                // Class toggle handled by theme.js Filters via .js-filter
+                applyFilters();
             });
 
 
@@ -622,9 +645,18 @@
 
                 var urlColors = new URLSearchParams(window.location.search).get('colors');
                 if (urlColors) {
-                    var activeColor = urlColors.split(',')[0];
-                    $('.swatch-color[data-color="' + activeColor + '"]').addClass('swatch_active');
+                    var colorsArray = urlColors.split(',');
+                    $('.swatch-color').removeClass('swatch_active');
+                    colorsArray.forEach(function(c) {
+                        var color = (c || '').trim();
+                        if (color) {
+                            $('.swatch-color[data-color="' + color + '"]').addClass('swatch_active');
+                        }
+                    });
                 }
+
+                // Keep hidden inputs in-sync so filters can stack.
+                syncHiddenInputsFromUI();
             });
 
         });

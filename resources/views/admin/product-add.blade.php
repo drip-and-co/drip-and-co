@@ -92,26 +92,26 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <label class="form-label">Sizes</label>
-                                        <select name="sizes[]" class="form-select" multiple size="3"
+                                        <select name="sizes[]" class="form-select js-multi-no-range" multiple size="3"
                                             style="height: 100px;">
-                                            <option value="S">S</option>
-                                            <option value="M">M</option>
-                                            <option value="L">L</option>
-                                            <option value="XL">XL</option>
+                                            <option value="S" {{ in_array('S', old('sizes', [])) ? 'selected' : '' }}>S</option>
+                                            <option value="M" {{ in_array('M', old('sizes', [])) ? 'selected' : '' }}>M</option>
+                                            <option value="L" {{ in_array('L', old('sizes', [])) ? 'selected' : '' }}>L</option>
+                                            <option value="XL" {{ in_array('XL', old('sizes', [])) ? 'selected' : '' }}>XL</option>
                                         </select>
-                                        <small>Click options to select (size="3" keeps dropdown open)</small>
+                                        <small>Choose options (Shift click to select multiple options)</small>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Colors</label>
-                                        <select name="colors[]" class="form-select" multiple size="5"
+                                        <select name="colors[]" class="form-select js-multi-no-range" multiple size="5"
                                             style="height: 120px;">
-                                            <option value="White">White</option>
-                                            <option value="Black">Black</option>
-                                            <option value="Grey">Grey</option>
-                                            <option value="Green">Green</option>
-                                            <option value="Pink">Pink</option>
+                                            <option value="White" {{ in_array('White', old('colors', [])) ? 'selected' : '' }}>White</option>
+                                            <option value="Black" {{ in_array('Black', old('colors', [])) ? 'selected' : '' }}>Black</option>
+                                            <option value="Grey" {{ in_array('Grey', old('colors', [])) ? 'selected' : '' }}>Grey</option>
+                                            <option value="Green" {{ in_array('Green', old('colors', [])) ? 'selected' : '' }}>Green</option>
+                                            <option value="Pink" {{ in_array('Pink', old('colors', [])) ? 'selected' : '' }}>Pink</option>
                                         </select>
-                                        <small>Click options to select</small>
+                                        <small>Choose options (Shift click to select multiple options)</small>
                                     </div>
                                 </div>
 

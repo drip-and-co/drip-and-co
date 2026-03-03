@@ -57,11 +57,14 @@
                 <input id="password" type="password" class="form-control form-control_gray @error('password') is-invalid @enderror" name="password" required=""
                   autocomplete="new-password">
                 <label for="password">Password *</label>
-                @error('password')
-                    <span class="invalid-feedback" role="alert">
-                        <strong>{{ $message }}</strong>
+                <small class="text-muted d-block mt-1">Password must be at least 8 characters and include a number and a capital letter.</small>
+                @if ($errors->has('password'))
+                    <span class="invalid-feedback d-block" role="alert">
+                        @foreach ($errors->get('password') as $message)
+                            <strong class="d-block">{{ $message }}</strong>
+                        @endforeach
                     </span>
-                @enderror
+                @endif
               </div>
 
               <div class="form-floating mb-3">

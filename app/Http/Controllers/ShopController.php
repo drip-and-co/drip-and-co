@@ -46,30 +46,55 @@ class ShopController extends Controller
         $brands = Brand::orderBy('name', 'ASC')->get();
         $categories = Category::orderBy('name', 'ASC')->get();
 
-        $products = Product::where(function ($query) use ($f_brands) {
-            $query->whereIn('brand_id', explode(',', $f_brands))->orWhereRaw("'" . $f_brands . "' = ''");
-        })
-            ->where(function ($query) use ($f_categories) {
-                $query->whereIn('category_id', explode(',', $f_categories))->orWhereRaw("'" . $f_categories . "' = ''");
+        $brandIds = array_values(array_filter(array_map('intval', explode(',', (string) $f_brands))));
+        $categoryIds = array_values(array_filter(array_map('intval', explode(',', (string) $f_categories))));
+        $sizes = array_values(array_filter(array_map('trim', explode(',', (string) $fsizes))));
+        $colors = array_values(array_filter(array_map('trim', explode(',', (string) $fcolors))));
+
+        $min_price = is_numeric($min_price) ? (float) $min_price : 1;
+        $max_price = is_numeric($max_price) ? (float) $max_price : 500;
+
+        $products = Product::query()
+            ->when($brandIds, function ($query) use ($brandIds) {
+                $query->whereIn('brand_id', $brandIds);
+            })
+            ->when($categoryIds, function ($query) use ($categoryIds) {
+                $query->whereIn('category_id', $categoryIds);
             })
             ->where(function ($query) use ($min_price, $max_price) {
                 $query->whereBetween('regular_price', [$min_price, $max_price])
-                    ->orwhereBetween('sale_price', [$min_price, $max_price]);
+                    ->orWhereBetween('sale_price', [$min_price, $max_price]);
             })
+            ->when($colors, function ($query) use ($colors) {
+                $query->where(function ($q) use ($colors) {
+                    foreach ($colors as $color) {
+                        $q->orWhereRaw('FIND_IN_SET(?, colors)', [$color]);
+                    }
+                });
+            })
+            ->when($sizes, function ($query) use ($sizes) {
+                $query->where(function ($q) use ($sizes) {
+                    foreach ($sizes as $s) {
+                        $q->orWhereRaw('FIND_IN_SET(?, sizes)', [$s]);
+                    }
+                });
+            })
+            ->orderBy($o_column, $o_order)
+            ->paginate($size);
 
-            ->where(function ($query) use ($fcolors) {
-                if ($fcolors) {
-                    $query->whereRaw('FIND_IN_SET(?, colors)', [$fcolors]);
-                }
-            })
-
-            ->where(function ($query) use ($fsizes) {
-                if ($fsizes) {
-                    $query->whereRaw('FIND_IN_SET(?, sizes)', [$fsizes]);
-                }
-            })
-            ->orderBy($o_column, $o_order)->paginate($size);
-        return view('shop', compact('products', 'size', 'order', 'brands', 'f_brands', 'categories', 'f_categories', 'min_price', 'max_price'));
+        return view('shop', compact(
+            'products',
+            'size',
+            'order',
+            'brands',
+            'f_brands',
+            'categories',
+            'f_categories',
+            'fsizes',
+            'fcolors',
+            'min_price',
+            'max_price'
+        ));
     }
 
     public function product_details($product_slug)

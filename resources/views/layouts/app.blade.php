@@ -152,6 +152,27 @@
             background-position: right center;
             background-size: 10px 10px;
         }
+
+        /* Reviews form text visibility in dark mode */
+        html[data-theme="dark"] .review-form label,
+        html[data-theme="dark"] .review-form h5,
+        html[data-theme="dark"] .review-form p,
+        html[data-theme="dark"] .review-form span {
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .review-form .form-control,
+        html[data-theme="dark"] .review-form select.form-control,
+        html[data-theme="dark"] .review-form textarea.form-control {
+            background-color: #111111;
+            border-color: #444444;
+            color: #ffffff;
+        }
+
+        html[data-theme="dark"] .review-form .form-control::placeholder,
+        html[data-theme="dark"] .review-form textarea.form-control::placeholder {
+            color: #b0b0b0;
+        }
     </style>
 
 
@@ -612,12 +633,12 @@
                     @else
                         <div class="header-tools__item hover-container">
                             <a href="{{ Auth::user()->utype === 'ADM' ? route('admin.index') : route('user.index') }}"
-                                class="header-tools__item">
-                                <span class="pr-6px">{{ Auth::user()->name }}</span>
-                                <svg class="d-block" width="20" height="20" viewBox="0 0 20 20" fill="none"
+                                class="header-tools__item d-flex align-items-center">
+                                <svg class="d-block me-1" width="20" height="20" viewBox="0 0 20 20" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_user" />
                                 </svg>
+                                <span class="ps-1">{{ Auth::user()->name }}</span>
                             </a>
                         </div>
                     @endguest
