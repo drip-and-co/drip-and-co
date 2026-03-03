@@ -65,7 +65,12 @@
                       <div class="mb-3">
                           <label for="new_password">New Password</label>
                           <input id="new_password" type="password" name="new_password" class="form-control " >
-                          @error('new_password') <span class="text-danger">{{ $message }}</span> @enderror
+                          <small class="text-muted d-block mt-1">Password must be at least 8 characters and include a number and a capital letter.</small>
+                          @if ($errors->has('new_password'))
+                              @foreach ($errors->get('new_password') as $message)
+                                  <span class="text-danger d-block">{{ $message }}</span>
+                              @endforeach
+                          @endif
                       </div>
 
                       <div class="mb-3">

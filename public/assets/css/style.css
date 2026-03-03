@@ -13468,15 +13468,26 @@ html[data-theme="dark"] .shop-sidebar .btn.btn-outline-secondary:hover {
   color: #ffffff;
 }
 
-/* Size buttons in dark mode - match Clear All Filters button */
+/* Size buttons in dark mode - show clear selected state */
 html[data-theme="dark"] .shop-sidebar .swatch-size {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ededec;
+}
+
+html[data-theme="dark"] .shop-sidebar .swatch-size:hover {
+  background-color: rgba(43, 94, 89, 0.25);
+  border-color: rgba(43, 94, 89, 0.9);
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .shop-sidebar .swatch-size.btn-primary {
   background-color: #2B5E59;
   border-color: #2B5E59;
   color: #ffffff;
 }
 
-html[data-theme="dark"] .shop-sidebar .swatch-size:hover,
-html[data-theme="dark"] .shop-sidebar .swatch-size.btn-primary {
+html[data-theme="dark"] .shop-sidebar .swatch-size.btn-primary:hover {
   background-color: #234a46;
   border-color: #234a46;
   color: #ffffff;

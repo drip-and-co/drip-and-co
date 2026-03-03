@@ -336,7 +336,7 @@
                         @endforelse
                         </div>
                         <div class="product-single__review-form">
-                        <form method="POST" action="{{route('product.review.store')}}">
+                        <form method="POST" action="{{route('product.review.store')}}" class="review-form">
                             @csrf
 
                             <input type="hidden" name="product_id" value="{{$product->id}}">
