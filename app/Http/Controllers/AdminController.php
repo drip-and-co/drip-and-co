@@ -11,12 +11,14 @@ use App\Models\OrderItem;
 use App\Models\Transaction;
 use App\Models\Slide;
 use App\Models\Contact;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
+
 
 class AdminController extends Controller
 {
@@ -688,4 +690,52 @@ class AdminController extends Controller
         $results = Product::where('name', 'LIKE', "%$query%")->get()->take(8);
         return response()->json($results);
     }
+    
+    public function users(Request $request)
+{
+    $q = $request->query('q');
+
+    $users = User::query()
+        ->when($q, function ($query) use ($q) {
+            $query->where('name', 'like', "%{$q}%")
+                  ->orWhere('email', 'like', "%{$q}%");
+        })
+        ->withCount('orders')   // remove this line if you don’t have orders() relation
+        ->orderBy('id', 'DESC')
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('admin.users', compact('users', 'q'));
+}
+
+public function user_edit($id)
+{
+    $user = User::findOrFail($id);
+    return view('admin.user-edit', compact('user'));
+}
+
+public function user_update(Request $request, $id)
+{
+    $user = User::findOrFail($id);
+
+    $request->validate([
+        'name'   => 'required|string|max:255',
+        'mobile' => 'nullable|string|max:50',
+        'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
+        'password' => 'nullable|min:8|confirmed', // confirmed = needs password_confirmation
+    ]);
+
+    $user->name = $request->name;
+    $user->mobile = $request->mobile;
+    $user->email = $request->email;
+
+    // Only update password if admin typed one
+    if ($request->filled('password')) {
+        $user->password = bcrypt($request->password);
+    }
+
+    $user->save();
+
+    return redirect()->route('admin.users')->with('status', 'User updated successfully!');
+}
 }
