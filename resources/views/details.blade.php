@@ -4,6 +4,18 @@
         .filled-heart {
             color: orange;
         }
+
+        .out-of-stock-box {
+            background-color: #268f75;
+            color: #fff;
+            padding: 14px;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            border-radius: 4px;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
     </style>
     <main class="pt-90">
         <div class="mb-md-1 pb-md-3"></div>
@@ -125,53 +137,66 @@
                     <div class="product-single__short-desc">
                         <p>{{ $product->short_description }}</p>
                     </div>
-                   
-                        <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
-                            @csrf
-                            <div class="product-single__addtocart">
-                                <div class="qty-control position-relative">
-                                    <input type="number" name="quantity" value="1" min="1"
-                                        class="qty-control__number text-center">
-                                    <div class="qty-control__reduce">-</div>
-                                    <div class="qty-control__increase">+</div>
-                                </div>
-                                <input type="hidden" name="id" value="{{ $product->id }}" />
-                                @if (!empty($product->sizes))
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium mb-1">Size <span
-                                                class="text-danger">*</span></label>
-                                        <select name="size" class="form-select form-select-lg shadow-sm"
-                                            style="padding-right: 2.5rem; min-height: 50px; font-size: 16px; padding-left: 1rem;"
-                                            required>
 
-                                            <option value="">Select size</option>
-                                            @foreach ($product->sizes as $size)
-                                                <option value="{{ $size }}">{{ $size }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                      
-                                @if (!empty($product->colors))
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium mb-1">Color <span
-                                                class="text-danger">*</span></label>
-                                        <select name="color" class="form-select form-select-lg shadow-sm"
-                                            style="padding-right: 2.5rem; min-height: 50px; font-size: 16px;" required>
-                                            <option value="">Select colour</option>
-                                            @foreach ($product->colors as $color)
-                                                <option value="{{ $color }}">{{ $color }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                @endif
-                                <input type="hidden" name="name" value="{{ $product->name }}" />
-                                <input type="hidden" name="price"
-                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                <button type="submit" class="btn btn-primary btn-addtocart" data-aside="cartDrawer">Add
-                                    to Cart</button>
+                    @if($product->quantity > 0)
+
+                    <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
+                        @csrf
+                        <div class="product-single__addtocart">
+
+                            <div class="qty-control position-relative">
+                                <input type="number" name="quantity" value="1" min="1"
+                                    class="qty-control__number text-center">
+                                <div class="qty-control__reduce">-</div>
+                                <div class="qty-control__increase">+</div>
                             </div>
-                        </form>
+
+                            <input type="hidden" name="id" value="{{ $product->id }}" />
+
+                            {{-- Size --}}
+                            @if (!empty($product->sizes))
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium mb-1">Size <span class="text-danger">*</span></label>
+                                    <select name="size" class="form-select form-select-lg shadow-sm" required>
+                                        <option value="">Select size</option>
+                                        @foreach ($product->sizes as $size)
+                                            <option value="{{ $size }}">{{ $size }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            {{-- Color --}}
+                            @if (!empty($product->colors))
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium mb-1">Color <span class="text-danger">*</span></label>
+                                    <select name="color" class="form-select form-select-lg shadow-sm" required>
+                                        <option value="">Select colour</option>
+                                        @foreach ($product->colors as $color)
+                                            <option value="{{ $color }}">{{ $color }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
+                            <input type="hidden" name="name" value="{{ $product->name }}" />
+                            <input type="hidden" name="price"
+                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+
+                            <button type="submit" class="btn btn-primary btn-addtocart">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </form>
+
+                    @else
+
+                        <div class="out-of-stock-box">
+                            OUT OF STOCK
+                        </div>
+
                     @endif
+                    
                     <div class="product-single__addtolinks">
                         @if (Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
                             <form method="POST"

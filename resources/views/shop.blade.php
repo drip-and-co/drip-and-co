@@ -37,6 +37,35 @@
             border-color: #f5e6e0 !important;
             box-shadow: 0 0 0 2px #f5e6e0;
         }
+
+        /* style for the out of stock hover */
+
+        .pc__img-wrapper {
+            position: relative;
+        }
+
+        .out-of-stock-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .pc__img-wrapper:hover .out-of-stock-overlay {
+            opacity: 1;
+        }
     </style>
 
     <main class="pt-90">
@@ -402,6 +431,13 @@
                         <div class="product-card-wrapper">
                             <div class="product-card mb-3 mb-md-4 mb-xxl-5">
                                 <div class="pc__img-wrapper">
+
+                                        @if($product->quantity <= 0)
+                                            <div class="out-of-stock-overlay">
+                                                Out of Stock
+                                            </div>
+                                        @endif
+
                                     <div class="swiper-container background-img js-swiper-slider"
                                         data-settings='{"resizeObserver": true}'>
                                         <div class="swiper-wrapper">
