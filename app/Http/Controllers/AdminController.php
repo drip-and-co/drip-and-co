@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
+use App\Models\Address;
+use Illuminate\Support\Facades\Hash;
 
 
 class AdminController extends Controller
@@ -708,42 +710,60 @@ class AdminController extends Controller
     return view('admin.users', compact('users', 'q'));
 }
 
-public function user_edit($id)
+
+public function user_edit(User $user)
 {
-    $user = User::findOrFail($id);
+    $user->load('address');
     return view('admin.user-edit', compact('user'));
 }
 
-public function user_update(Request $request, $id)
+public function user_update(Request $request, User $user)
 {
-    $user = User::findOrFail($id);
+    $request->validate([
+        'name'   => 'required|string|max:255',
+        'mobile' => 'nullable|string|max:50',
+        'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
+        'password' => 'nullable|string|min:8|confirmed',
 
-    $request->validate(
-        [
-            'name'   => 'required|string|max:255',
-            'mobile' => 'nullable|string|max:50',
-            'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|contains_number|contains_uppercase|confirmed', // confirmed = needs password_confirmation
-        ],
-        [
-            'password.min' => 'Password must be at least 8 characters.',
-            'password.contains_number' => 'Password must include at least 1 number.',
-            'password.contains_uppercase' => 'Password must include at least 1 capital letter.',
-            'password.confirmed' => 'Password confirmation does not match.',
-        ]
-    );
+        'address'  => 'nullable|string|max:255',
+        'city'     => 'nullable|string|max:255',
+        'county'   => 'nullable|string|max:255',
+        'country'  => 'nullable|string|max:255',
+        'postcode' => 'nullable|string|max:50',
+    ]);
 
     $user->name = $request->name;
     $user->mobile = $request->mobile;
     $user->email = $request->email;
 
-    // Only update password if admin typed one
     if ($request->filled('password')) {
         $user->password = bcrypt($request->password);
     }
 
     $user->save();
 
+    \App\Models\Address::updateOrCreate(
+        ['user_id' => $user->id],
+        [
+            'address' => $request->address,
+            'city'    => $request->city,
+            'state'   => $request->county,
+            'country' => $request->country,
+            'zip'     => $request->postcode,
+        ]
+    );
+
     return redirect()->route('admin.users')->with('status', 'User updated successfully!');
+}
+
+public function user_delete(User $user)
+{
+    if ($user->utype === 'ADM' || $user->id === auth()->id()) {
+        return back()->with('error', 'Admin users cannot be deleted.');
+    }
+
+    $user->delete();
+
+    return redirect()->route('admin.users')->with('status', 'User deleted successfully!');
 }
 }

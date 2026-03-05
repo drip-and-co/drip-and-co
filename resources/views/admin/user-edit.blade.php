@@ -33,7 +33,14 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.user.update', ['id' => $user->id]) }}"
+            @if(Session::has('error'))
+                <div class="alert alert-danger mb-3">{{ Session::get('error') }}</div>
+            @endif
+            @if(Session::has('status'))
+                <div class="alert alert-success mb-3">{{ Session::get('status') }}</div>
+            @endif
+
+           <form action="{{ route('admin.user.update', $user) }}" method="POST" class="form-new-product form-style-1 needs-validation">
                   method="POST"
                   class="form-new-product form-style-1 needs-validation">
                 @csrf
@@ -52,6 +59,31 @@
                 <fieldset class="name">
                     <div class="body-title">Email Address <span class="tf-color-1">*</span></div>
                     <input class="flex-grow" type="email" name="email" value="{{ old('email', $user->email) }}" required>
+                </fieldset>
+
+                <fieldset class="name">
+                    <div class="body-title">Address</div>
+                    <input class="flex-grow" type="text" name="address" value="{{ old('address', $user->address->address ?? '') }}" placeholder="Address">
+                </fieldset>
+
+                <fieldset class="name">
+                    <div class="body-title">City</div>
+                    <input class="flex-grow" type="text" name="city" value="{{ old('city', $user->address->city ?? '') }}" placeholder="City">
+                </fieldset>
+
+                <fieldset class="name">
+                    <div class="body-title">County</div>
+                    <input class="flex-grow" type="text" name="county" value="{{ old('county', $user->address->state ?? '') }}" placeholder="County">
+                </fieldset>
+
+                <fieldset class="name">
+                    <div class="body-title">Country</div>
+                    <input class="flex-grow" type="text" name="country" value="{{ old('country', $user->address->country ?? '') }}" placeholder="Country">
+                </fieldset>
+
+                <fieldset class="name">
+                    <div class="body-title">Postcode</div>
+                    <input class="flex-grow" type="text" name="postcode" value="{{ old('postcode', $user->address->zip ?? '') }}" placeholder="Postcode">
                 </fieldset>
 
                 <div class="row">
