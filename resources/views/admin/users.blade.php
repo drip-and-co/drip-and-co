@@ -4,7 +4,6 @@
 <div class="main-content-inner">
     <div class="main-content-wrap">
 
-        <!-- Page Header -->
         <div class="flex items-center flex-wrap justify-between gap20 mb-27">
             <h3>Users</h3>
             <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
@@ -22,7 +21,6 @@
             </ul>
         </div>
 
-        <!-- Users Table -->
         <div class="wg-box">
             <div class="flex items-center justify-between gap10 flex-wrap">
                 <div class="wg-filter flex-grow">
@@ -63,9 +61,11 @@
 
                                     <td class="pname">
                                         <div class="image">
-                                            <img src="{{ asset('assets/images/avatar/user-1.png') }}"
-                                                 alt="user"
-                                                 class="image">
+                                            @if($user->utype === 'ADM')
+                                                <span class="badge bg-danger">Admin</span>
+                                            @else
+                                                <span class="badge bg-primary">User</span>
+                                            @endif
                                         </div>
                                         <div class="name">
                                             <a href="#" class="body-title-2">
@@ -77,7 +77,7 @@
                                         </div>
                                     </td>
 
-                                  <td>{{ $user->mobile ?? '-' }}</td>
+                                    <td>{{ $user->mobile ?? '-' }}</td>
 
                                     <td>{{ $user->email }}</td>
 
@@ -87,11 +87,25 @@
 
                                     <td>
                                         <div class="list-icon-function">
-                                            <a href="{{ route('admin.user.edit', ['id' => $user->id]) }}">
+
+                                            <a href="{{ route('admin.user.edit', $user) }}">
                                                 <div class="item edit">
                                                     <i class="icon-edit-3"></i>
                                                 </div>
                                             </a>
+
+                                            @if($user->utype !== 'ADM' && $user->id !== auth()->id())
+                                               <form id="delete-user-{{ $user->id }}" action="{{ route('admin.user.delete', $user) }}" method="POST" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="button" onclick="deleteUser({{ $user->id }})" style="background:none;border:none;padding:0;">
+                                                        <div class="item delete">
+                                                            <i class="icon-trash-2 text-danger"></i>
+                                                        </div>
+                                                    </button>
+                                                </form>
+                                            @endif
+
                                         </div>
                                     </td>
                                 </tr>
@@ -115,5 +129,55 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+const deleteUser = (id) =>
+  Swal.fire({
+    title: 'Delete User',
+    text: 'Are you sure you want to delete this user?',
+    icon: 'warning',
+    width: 720,
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete user',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#e55353',
+    cancelButtonColor: '#6c757d'
+  }).then(({ isConfirmed }) =>
+    isConfirmed && document.getElementById(`delete-user-${id}`).submit()
+  );
+</script>
+
+<style>
+.swal2-popup{
+    padding:40px !important;
+    border-radius:16px !important;
+}
+
+.swal2-title{
+    font-size:34px !important;
+    font-weight:700 !important;
+}
+
+.swal2-html-container{
+    font-size:20px !important;
+    margin-top:12px !important;
+}
+
+.swal2-actions{
+    margin-top:22px !important;
+}
+
+.swal2-actions button{
+    font-size:18px !important;
+    padding:16px 38px !important;
+    border-radius:12px !important;
+}
+
+.swal2-icon{
+    transform:scale(1.25);
+}
+</style>
 
 @endsection

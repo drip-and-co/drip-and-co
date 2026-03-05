@@ -10,9 +10,6 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     */
     protected $fillable = [
         'name',
         'email',
@@ -20,17 +17,11 @@ class User extends Authenticatable
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     */
     protected function casts(): array
     {
         return [
@@ -39,11 +30,13 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * Relationship: A user has many orders
-     */
     public function orders()
     {
         return $this->hasMany(\App\Models\Order::class);
+    }
+
+    public function address()
+    {
+        return $this->hasOne(\App\Models\Address::class);
     }
 }
