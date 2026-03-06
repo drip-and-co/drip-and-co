@@ -53,6 +53,15 @@
                             <td>{{ $order->canceled_date }}</td>
                         </tr>
                         <tr>
+                            <th>Return Date</th>
+                            <td colspan="5">
+                                {{ $order->return_date ?? '—' }}
+                                @if ($order->return_date)
+                                    <span class="badge bg-secondary ms-2">All items returned</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Order status</th>
                             <td colspan="5">
                                 @if ($order->status == 'delivered')
@@ -123,8 +132,20 @@
                                             @endif
                                         @endif
                                     </td>
-                                    <td class="text-center">{{ $item->rstatus == 0 ? 'No' : 'Yes' }}</td>
-
+                                    <td class="text-center">
+                                        @if ($item->rstatus)
+                                            <span class="badge bg-secondary">Returned</span>
+                                            @if ($item->return_date)
+                                                <div class="text-muted" style="font-size:11px;">{{ $item->return_date }}</div>
+                                            @endif
+                                            @if ($item->return_reason)
+                                                <div class="text-muted" style="font-size:11px;" title="{{ $item->return_reason }}">
+                                                    {{ \Illuminate\Support\Str::limit($item->return_reason, 50) }}
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-success">No Return</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

@@ -174,6 +174,7 @@
                                         <th class="text-center">Brand</th>
                                         <th class="text-center">Options</th>
                                         <th class="text-center">Return Status</th>
+                                        <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -210,7 +211,31 @@
                                                     @endif
                                                 @endif
                                             </td>
-                                            <td class="text-center">{{ $item->rstatus == 0 ? 'No' : 'Yes' }}</td>
+                                            <td class="text-center">
+                                                @if ($item->rstatus)
+                                                    <span class="badge bg-secondary">Returned</span>
+                                                    @if ($item->return_date)
+                                                        <div class="text-muted" style="font-size:11px;">{{ $item->return_date }}</div>
+                                                    @endif
+                                                    @if ($item->return_reason)
+                                                        <div class="text-muted" style="font-size:11px;" title="{{ $item->return_reason }}">
+                                                            {{ \Illuminate\Support\Str::limit($item->return_reason, 40) }}
+                                                        </div>
+                                                    @endif
+                                                @else
+                                                    <span class="badge bg-success">No Return</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($order->status === 'delivered' && !$item->rstatus)
+                                                    <a href="{{ route('user.return.show', [$order->id, $item->id]) }}"
+                                                       class="btn btn-sm btn-warning">
+                                                        Return
+                                                    </a>
+                                                @else
+                                                    &mdash;
+                                                @endif
+                                            </td>
 
                                         </tr>
                                     @endforeach

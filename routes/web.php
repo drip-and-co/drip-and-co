@@ -7,6 +7,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\UserPasswordController;
+use App\Http\Controllers\ReturnController;
 use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account-orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/account-order/{order_id}/details', [UserController::class, 'order_details'])->name('user.order.details');
     Route::put('/account-order/cancel-order', [UserController::class, 'order_cancel'])->name('user.order.cancel');
+
+    Route::get('/account-order/{order_id}/return/{item_id}', [ReturnController::class, 'show'])->name('user.return.show');
+    Route::post('/account-order/{order_id}/return/{item_id}', [ReturnController::class, 'store'])->name('user.return.store');
 
     Route::get('/change-password', [UserPasswordController::class, 'edit'])->name('user.password.edit');
     Route::post('/change-password', [UserPasswordController::class, 'update'])->name('user.password.update');
@@ -104,7 +108,6 @@ Route::middleware(['auth',AuthAdmin::class])->group(function () {
 
      Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users');
 
-     Route::get('/admin/users/{user}/edit', [AdminController::class, 'user_edit'])->name('admin.user.edit');
-     Route::put('/admin/users/{user}', [AdminController::class, 'user_update'])->name('admin.user.update');
-     Route::delete('/admin/users/{user}/delete', [AdminController::class, 'user_delete'])->name('admin.user.delete');
+     Route::get('/admin/users/{id}/edit', [AdminController::class, 'user_edit'])->name('admin.user.edit');
+     Route::put('/admin/users/{id}', [AdminController::class, 'user_update'])->name('admin.user.update');
 });
