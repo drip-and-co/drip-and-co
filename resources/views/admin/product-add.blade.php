@@ -99,7 +99,7 @@
                                             <option value="L" {{ in_array('L', old('sizes', [])) ? 'selected' : '' }}>L</option>
                                             <option value="XL" {{ in_array('XL', old('sizes', [])) ? 'selected' : '' }}>XL</option>
                                         </select>
-                                        <small>Choose options (Shift click to select multiple options)</small>
+                                        <small>Click to select or deselect options</small>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label">Colors</label>
@@ -111,7 +111,7 @@
                                             <option value="Green" {{ in_array('Green', old('colors', [])) ? 'selected' : '' }}>Green</option>
                                             <option value="Pink" {{ in_array('Pink', old('colors', [])) ? 'selected' : '' }}>Pink</option>
                                         </select>
-                                        <small>Choose options (Shift click to select multiple options)</small>
+                                        <small>Click to select or deselect options</small>
                                     </div>
                                 </div>
 

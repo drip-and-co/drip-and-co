@@ -111,7 +111,7 @@
                                             {{ in_array('XL', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>XL
                                         </option>
                                     </select>
-                                    <small>Choose options (Shift click to select multiple options)</small>
+                                    <small>Click to select or deselect options</small>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Colors</label>
@@ -133,7 +133,7 @@
                                             {{ in_array('Pink', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
                                             Pink</option>
                                     </select>
-                                    <small>Choose options (Shift click to select multiple options)</small>
+                                    <small>Click to select or deselect options</small>
                                 </div>
                             </div>
                             <fieldset class="shortdescription">

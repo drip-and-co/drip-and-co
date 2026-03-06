@@ -15823,8 +15823,8 @@ html[data-theme="dark"] .contact-us__form {
 html[data-theme="dark"] .form-control {
   background-color: #383B3C !important;
   border-color: #ffffff !important;
-  -webkit-text-fill-color: transparent !important; 
-
+  color: #f9fafb !important;
+  -webkit-text-fill-color: #f9fafb !important;
 }
 
 html[data-theme="dark"] .form-floating > label {

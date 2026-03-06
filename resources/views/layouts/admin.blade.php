@@ -354,15 +354,10 @@
                 });
             }
 
-            // Custom behaviour for multi-selects on product forms:
-            // Shift+click toggles only the clicked option (no range selection).
+            // Multi-selects on product forms: click toggles the option (select/deselect) without needing shift.
             document.querySelectorAll('select.js-multi-no-range option').forEach(function(optionEl) {
                 optionEl.addEventListener('mousedown', function(e) {
-                    if (!e.shiftKey) {
-                        return;
-                    }
                     e.preventDefault();
-                    // Toggle just this option, keep others as they are.
                     optionEl.selected = !optionEl.selected;
                 });
             });
