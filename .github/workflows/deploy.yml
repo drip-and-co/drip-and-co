@@ -1,0 +1,36 @@
+name: Deploy to Aston
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ASTON_SSH_KEY }}
+
+      - name: Deploy to Aston
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.ASTON_USER }}@${{ secrets.ASTON_HOST }} << 'EOF'
+            set -e
+
+            cd /home/cs2team17/drip-and-co
+
+            echo "Pulling latest code..."
+            git fetch origin
+            git reset --hard origin/main
+
+            echo "Clearing Laravel caches..."
+            php artisan optimize:clear
+
+            echo "Fixing permissions..."
+            chmod -R 775 storage bootstrap/cache
+
+            echo "Deployment complete."
+          EOF
