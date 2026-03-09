@@ -153,25 +153,286 @@
             background-size: 10px 10px;
         }
 
-        /* Reviews form text visibility in dark mode */
+        /* Reviews section (product details) – dark mode: all text visible */
+        html[data-theme="dark"] #tab-reviews .product-single__reviews-title,
+        html[data-theme="dark"] #tab-reviews .product-single__reviews-list,
+        html[data-theme="dark"] #tab-reviews .product-single__reviews-list p,
+        html[data-theme="dark"] #tab-reviews .product-single__reviews-item .customer-review .customer-name h6,
+        html[data-theme="dark"] #tab-reviews .product-single__reviews-item .review-date,
+        html[data-theme="dark"] #tab-reviews .product-single__reviews-item .review-text p {
+            color: #e8ecea !important;
+        }
+
+        html[data-theme="dark"] .product-single__details-tab .nav-link.nav-link_underscore {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+        html[data-theme="dark"] .product-single__details-tab .nav-link.nav-link_underscore:hover,
+        html[data-theme="dark"] .product-single__details-tab .nav-link.nav-link_underscore.active,
+        html[data-theme="dark"] .product-single__details-tab .nav-item.show .nav-link.nav-link_underscore {
+            color: #ffffff !important;
+        }
+
         html[data-theme="dark"] .review-form label,
         html[data-theme="dark"] .review-form h5,
         html[data-theme="dark"] .review-form p,
         html[data-theme="dark"] .review-form span {
-            color: #ffffff;
+            color: #ffffff !important;
         }
 
         html[data-theme="dark"] .review-form .form-control,
+        html[data-theme="dark"] .review-form input.form-control,
         html[data-theme="dark"] .review-form select.form-control,
         html[data-theme="dark"] .review-form textarea.form-control {
-            background-color: #111111;
-            border-color: #444444;
-            color: #ffffff;
+            background-color: #1a1a1a !important;
+            border-color: #444444 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        html[data-theme="dark"] .review-form .form-control:focus,
+        html[data-theme="dark"] .review-form input.form-control:focus,
+        html[data-theme="dark"] .review-form textarea.form-control:focus {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
         }
 
         html[data-theme="dark"] .review-form .form-control::placeholder,
+        html[data-theme="dark"] .review-form input.form-control::placeholder,
         html[data-theme="dark"] .review-form textarea.form-control::placeholder {
-            color: #b0b0b0;
+            color: #b0b0b0 !important;
+            opacity: 1;
+        }
+
+        /* Checkout delivery details form – dark mode: inputs and labels visible */
+        html[data-theme="dark"] .shop-checkout .form-control,
+        html[data-theme="dark"] .shop-checkout input.form-control,
+        html[data-theme="dark"] .shop-checkout select.form-control,
+        html[data-theme="dark"] .shop-checkout textarea.form-control {
+            background-color: #1a1a1a;
+            border-color: #444444;
+            color: #ffffff !important;
+        }
+
+        html[data-theme="dark"] .shop-checkout .form-control::placeholder,
+        html[data-theme="dark"] .shop-checkout input.form-control::placeholder,
+        html[data-theme="dark"] .shop-checkout textarea.form-control::placeholder {
+            color: #b0b0b0 !important;
+        }
+
+        html[data-theme="dark"] .shop-checkout .form-floating label {
+            color: #b0b0b0 !important;
+        }
+
+        html[data-theme="dark"] .shop-checkout .form-floating > .form-control:focus ~ label,
+        html[data-theme="dark"] .shop-checkout .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            color: #ffffff !important;
+        }
+
+        /* Checkout steps: line under titles flips in dark mode (white/black <-> black/white) */
+        html[data-theme="dark"] .shop-checkout .checkout-steps {
+            border-bottom-color: #444444;
+        }
+        html[data-theme="dark"] .shop-checkout .checkout-steps__item.active {
+            border-color: #ffffff;
+        }
+        @media (max-width: 991.98px) {
+            html[data-theme="dark"] .shop-checkout .checkout-steps {
+                border-left-color: #444444;
+            }
+            html[data-theme="dark"] .shop-checkout .checkout-steps__item.active {
+                border-left-color: #ffffff;
+            }
+        }
+
+        /* Chat widget - bottom right, not shown on admin */
+        .chat-widget-trigger {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9998;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2B5E59 0%, #1e423e 100%);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(43, 94, 89, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .chat-widget-trigger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 24px rgba(43, 94, 89, 0.5);
+        }
+        .chat-widget-trigger svg {
+            width: 28px;
+            height: 28px;
+        }
+        .chat-widget-panel {
+            position: fixed;
+            bottom: 90px;
+            right: 24px;
+            z-index: 9999;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            height: 480px;
+            max-height: calc(100vh - 120px);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-widget-panel.is-open {
+            display: flex;
+        }
+        html[data-theme="dark"] .chat-widget-panel {
+            background: #1a1a1a;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+        .chat-widget-header {
+            padding: 12px 16px 12px 20px;
+            background: linear-gradient(135deg, #2B5E59 0%, #1e423e 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .chat-widget-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+        .chat-widget-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chat-widget-new-chat {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .chat-widget-new-chat:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .chat-widget-close {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 4px 6px;
+            opacity: 0.9;
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+        .chat-widget-close:hover {
+            opacity: 1;
+        }
+        .chat-widget-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .chat-msg.bot {
+            align-self: flex-start;
+            background: #e8f0ee;
+            color: #1b1b18;
+        }
+        html[data-theme="dark"] .chat-msg.bot {
+            background: #2a3230;
+            color: #e8ecea;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            background: #2B5E59;
+            color: #fff;
+        }
+        .chat-widget-input-wrap {
+            padding: 12px 16px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+        html[data-theme="dark"] .chat-widget-input-wrap {
+            border-top-color: rgba(255,255,255,0.1);
+        }
+        .chat-widget-input-wrap form {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-widget-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        html[data-theme="light"] .chat-widget-input {
+            background: #f8f8f8;
+            border-color: #ccc;
+            color: #1b1b18;
+        }
+        html[data-theme="dark"] .chat-widget-input {
+            background: #252525;
+            border-color: #444;
+            color: #ededec;
+        }
+        .chat-widget-send {
+            padding: 10px 16px;
+            background: #2B5E59;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .chat-widget-send:hover {
+            background: #234a46;
+        }
+        .chat-quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 0 8px;
+        }
+        .chat-quick-reply {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid #2B5E59;
+            background: transparent;
+            color: #2B5E59;
+            transition: background 0.2s, color 0.2s;
+        }
+        .chat-quick-reply:hover {
+            background: #2B5E59;
+            color: #fff;
+        }
+        html[data-theme="dark"] .chat-quick-reply {
+            border-color: #5a9d97;
+            color: #8ed0cb;
+        }
+        html[data-theme="dark"] .chat-quick-reply:hover {
+            background: #2B5E59;
+            color: #fff;
         }
     </style>
 
@@ -824,6 +1085,31 @@
         </div>
     </footer>
 
+    <!-- Chat widget (not on admin dashboard) -->
+    <button type="button" class="chat-widget-trigger" id="chat-widget-trigger" aria-label="Open chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </button>
+    <div class="chat-widget-panel" id="chat-widget-panel" role="dialog" aria-label="Chat" data-contact-url="{{ route('home.contact') }}">
+        <div class="chat-widget-header">
+            <h3>Support</h3>
+            <div class="chat-widget-header-actions">
+                <button type="button" class="chat-widget-new-chat" id="chat-widget-new-chat" aria-label="Start new chat">New chat</button>
+                <button type="button" class="chat-widget-close" id="chat-widget-close" aria-label="Close chat">&times;</button>
+            </div>
+        </div>
+        <div class="chat-widget-messages" id="chat-widget-messages">
+            <!-- Messages and quick replies rendered by JS; initial state from localStorage or default -->
+        </div>
+        <div class="chat-widget-input-wrap">
+            <form id="chat-widget-form">
+                <input type="text" class="chat-widget-input" id="chat-widget-input" placeholder="Type a message..." autocomplete="off" />
+                <button type="submit" class="chat-widget-send">Send</button>
+            </form>
+        </div>
+    </div>
+
     <div id="scrollTop" class="visually-hidden end-0"></div>
     <div class="page-overlay"></div>
 
@@ -918,160 +1204,135 @@
     </script>
 
     <script src="{{ asset('assets/js/theme.js') }}"></script>
-    @stack('scripts')
-
-    {{-- Back to Top Button --}}
-    <button id="back-to-top" aria-label="Back to top" title="Back to top">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="18 15 12 9 6 15"></polyline>
-        </svg>
-    </button>
-
-    <style>
-        /* ── Back to Top ── */
-        #back-to-top {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 9999;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: none;
-            background: #111;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transform: translateY(12px);
-            transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease, box-shadow 0.2s ease;
-            pointer-events: none;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-        }
-        #back-to-top.visible {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
-        #back-to-top:hover {
-            background: #333;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.28);
-        }
-        html[data-theme="dark"] #back-to-top {
-            background: #f0f0f0;
-            color: #111;
-        }
-        html[data-theme="dark"] #back-to-top:hover {
-            background: #fff;
-        }
-
-        /* ── Cursor Trail ── */
-        .cursor-dot {
-            position: fixed;
-            pointer-events: none;
-            border-radius: 50%;
-            z-index: 99999;
-            transform: translate(-50%, -50%);
-            will-change: transform, opacity;
-        }
-    </style>
-
     <script>
-        // ── Back to Top ──
-        (function () {
-            const btn = document.getElementById('back-to-top');
-            window.addEventListener('scroll', function () {
-                if (window.scrollY > 300) {
-                    btn.classList.add('visible');
-                } else {
-                    btn.classList.remove('visible');
+        (function() {
+            var STORAGE_KEY = 'dripandco_chat_history';
+            var trigger = document.getElementById('chat-widget-trigger');
+            var panel = document.getElementById('chat-widget-panel');
+            var closeBtn = document.getElementById('chat-widget-close');
+            var newChatBtn = document.getElementById('chat-widget-new-chat');
+            var form = document.getElementById('chat-widget-form');
+            var input = document.getElementById('chat-widget-input');
+            var messagesEl = document.getElementById('chat-widget-messages');
+            var contactUrl = (panel && panel.getAttribute('data-contact-url')) || '/contact-us';
+
+            var quickReplies = ['Hello', 'Shipping & tracking', 'Returns & refunds', 'Contact options', 'Products & stock'];
+
+            if (!trigger || !panel) return;
+
+            function openChat() {
+                panel.classList.add('is-open');
+                input.focus();
+            }
+            function closeChat() {
+                panel.classList.remove('is-open');
+            }
+            function saveHistory(messages) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+                } catch (e) {}
+            }
+            function loadHistory() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : null;
+                } catch (e) {
+                    return null;
                 }
-            }, { passive: true });
-            btn.addEventListener('click', function () {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        })();
-
-        // ── Cursor Trail ──
-        (function () {
-            const TRAIL_LENGTH = 14;
-            const FADE_DELAY = 120; // ms after mouse stops before fading out
-            const dots = [];
-
-            for (let i = 0; i < TRAIL_LENGTH; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'cursor-dot';
-                const progress = i / TRAIL_LENGTH;
-                const size = Math.round(7 - progress * 5);
-                const blur = progress * 2;
-                dot.style.cssText = `
-                    width: ${size}px;
-                    height: ${size}px;
-                    opacity: 0;
-                    filter: blur(${blur}px) drop-shadow(0 0 ${3 - progress * 2}px rgba(150,230,160,0.9));
-                    background: radial-gradient(circle, rgba(190,240,195,0.95) 0%, rgba(110,210,130,0.75) 100%);
-                    transition: opacity 0.35s ease;
-                `;
-                document.body.appendChild(dot);
-                dots.push(dot);
             }
-
-            const positions = [];
-            let moving = false;
-            let fadeTimer = null;
-            let rafId = null;
-
-            function showTrail() {
-                moving = true;
-                clearTimeout(fadeTimer);
-                // Restore per-dot opacity
-                dots.forEach((d, i) => {
-                    const progress = i / TRAIL_LENGTH;
-                    d.style.transition = 'opacity 0.06s linear';
-                    d.style.opacity = String(1 - progress * 0.88);
+            function renderQuickReplies() {
+                var wrap = document.getElementById('chat-quick-replies-wrap');
+                if (wrap) wrap.remove();
+                wrap = document.createElement('div');
+                wrap.id = 'chat-quick-replies-wrap';
+                wrap.className = 'chat-quick-replies';
+                quickReplies.forEach(function(label) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'chat-quick-reply';
+                    btn.textContent = label;
+                    btn.addEventListener('click', function() {
+                        input.value = label;
+                        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+                    });
+                    wrap.appendChild(btn);
                 });
+                messagesEl.appendChild(wrap);
+                messagesEl.scrollTop = messagesEl.scrollHeight;
             }
-
-            function hideTrail() {
-                moving = false;
-                dots.forEach(d => {
-                    d.style.transition = 'opacity 0.35s ease';
-                    d.style.opacity = '0';
+            function appendMessage(text, isBot) {
+                var wrap = document.getElementById('chat-quick-replies-wrap');
+                if (wrap) wrap.remove();
+                var div = document.createElement('div');
+                div.className = 'chat-msg ' + (isBot ? 'bot' : 'user');
+                div.textContent = text;
+                messagesEl.appendChild(div);
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            }
+            function getBotReply(userText) {
+                var t = (userText || '').toLowerCase().trim();
+                if (!t) return "Please type a message and we'll be happy to help.";
+                if (/hi|hello|hey|howdy|good morning|good afternoon|good evening/.test(t))
+                    return "Hello. Thank you for contacting Drip&Co. How may we assist you today?";
+                if (/hour|open|close|time|when/.test(t))
+                    return "We aim to respond to all enquiries within 24 hours. For immediate assistance, you can reach us by phone at +44 000-000-0000 or by email at dripandco@outlook.com.";
+                if (/ship|delivery|track|order status|where is my order/.test(t))
+                    return "Delivery and tracking information for your order is available in your account dashboard. Go to Order details to view status and tracking. We ship across the UK; standard delivery typically takes 3–5 working days.";
+                if (/return|refund|exchange/.test(t))
+                    return "Returns can be requested from your account dashboard. Go to Order details, select the relevant order and follow the return options there. We accept returns within 30 days. If you need further assistance, please contact us.";
+                if (/contact|email|phone|help|reach|get in touch/.test(t))
+                    return "You can reach us by phone at +44 000-000-0000, by email at dripandco@outlook.com, or via our Contact page using the form there. We're here to help.";
+                if (/product|item|stock|available|in stock/.test(t))
+                    return "Our full product range is available in the Shop. For availability of a specific item or restock dates, please email dripandco@outlook.com and we'll get back to you shortly.";
+                if (/thank|thanks|bye|goodbye|cheers/.test(t))
+                    return "You're welcome. If you need anything else, feel free to ask. Have a great day.";
+                return "Thank you for your message. For detailed assistance, please email us at dripandco@outlook.com or use our contact form, and we'll respond as soon as possible.";
+            }
+            function renderMessages(messages) {
+                messagesEl.innerHTML = '';
+                (messages || []).forEach(function(m) {
+                    appendMessage(m.text, m.bot);
                 });
+                renderQuickReplies();
+            }
+            function startNewChat() {
+                var welcome = "Hello. Thank you for contacting Drip&Co. How may we assist you today? You can choose a topic below or type your question.";
+                renderMessages([{ text: welcome, bot: true }]);
+                saveHistory([{ text: welcome, bot: true }]);
+            }
+            function sendMessage(text) {
+                if (!text) return;
+                appendMessage(text, false);
+                var reply = getBotReply(text);
+                setTimeout(function() {
+                    appendMessage(reply, true);
+                    renderQuickReplies();
+                    var history = loadHistory() || [];
+                    history.push({ text: text, bot: false }, { text: reply, bot: true });
+                    saveHistory(history);
+                }, 350);
             }
 
-            document.addEventListener('mousemove', function (e) {
-                positions.unshift({ x: e.clientX, y: e.clientY });
-                if (positions.length > TRAIL_LENGTH * 4) positions.length = TRAIL_LENGTH * 4;
+            var history = loadHistory();
+            if (history && history.length > 0) {
+                renderMessages(history);
+            } else {
+                startNewChat();
+            }
 
-                showTrail();
-
-                clearTimeout(fadeTimer);
-                fadeTimer = setTimeout(hideTrail, FADE_DELAY);
-
-                if (!rafId) rafId = requestAnimationFrame(render);
+            trigger.addEventListener('click', openChat);
+            closeBtn.addEventListener('click', closeChat);
+            if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var text = input.value.trim();
+                if (!text) return;
+                input.value = '';
+                sendMessage(text);
             });
-
-            const spacing = 4;
-
-            function render() {
-                rafId = null;
-                for (let i = 0; i < TRAIL_LENGTH; i++) {
-                    const idx = Math.min(i * spacing, positions.length - 1);
-                    if (positions[idx]) {
-                        dots[i].style.left = positions[idx].x + 'px';
-                        dots[i].style.top  = positions[idx].y + 'px';
-                    }
-                }
-                if (moving) rafId = requestAnimationFrame(render);
-            }
-
-            document.addEventListener('mouseleave', hideTrail);
         })();
     </script>
+    @stack('scripts')
 </body>
 
 </html>
