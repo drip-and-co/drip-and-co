@@ -55,6 +55,7 @@ class ShopController extends Controller
         $max_price = is_numeric($max_price) ? (float) $max_price : 500;
 
         $products = Product::query()
+            ->with('reviews')
             ->when($brandIds, function ($query) use ($brandIds) {
                 $query->whereIn('brand_id', $brandIds);
             })
