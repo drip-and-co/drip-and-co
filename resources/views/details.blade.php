@@ -4,18 +4,6 @@
         .filled-heart {
             color: orange;
         }
-
-        .out-of-stock-box {
-            background-color: #268f75;
-            color: #fff;
-            padding: 14px;
-            font-weight: 600;
-            text-align: center;
-            text-transform: uppercase;
-            border-radius: 4px;
-            margin-top: 20px;
-            letter-spacing: 1px;
-        }
     </style>
     <main class="pt-90">
         <div class="mb-md-1 pb-md-3"></div>
@@ -89,7 +77,7 @@
                             <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">Home</a>
                             <span class="breadcrumb-separator menu-link fw-medium ps-1 pe-1">/</span>
                             <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">The Shop</a>
-                        </div><!-- /.breadcrumb -->
+                        </div>
 
                         <div
                             class="product-single__prev-next d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
@@ -102,28 +90,25 @@
                                     viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_next_md" />
                                 </svg></a>
-                        </div><!-- /.shop-acs -->
+                        </div>
                     </div>
                     <h1 class="product-single__name">{{ $product->name }}</h1>
+                    @php
+                        $reviewCount = $product->reviews->count();
+                        $avgRating = $reviewCount > 0 ? round($product->reviews->avg('rating')) : 0;
+                    @endphp
                     <div class="product-single__rating">
                         <div class="reviews-group d-flex">
-                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                <use href="#icon_star" />
-                            </svg>
-                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                <use href="#icon_star" />
-                            </svg>
-                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                <use href="#icon_star" />
-                            </svg>
-                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                <use href="#icon_star" />
-                            </svg>
-                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg">
-                                <use href="#icon_star" />
-                            </svg>
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
+                                    style="fill: {{ $i <= $avgRating ? '#ffc107' : '#ccc' }}">
+                                    <use href="#icon_star" />
+                                </svg>
+                            @endfor
                         </div>
-                        <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
+                        <span class="reviews-note text-lowercase text-secondary ms-1">
+                            {{ $reviewCount }} {{ Str::plural('review', $reviewCount) }}
+                        </span>
                     </div>
                     <div class="product-single__price">
                         <span class="current-price">
@@ -138,65 +123,79 @@
                         <p>{{ $product->short_description }}</p>
                     </div>
 
-                    @if($product->quantity > 0)
-
-                    <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
-                        @csrf
-                        <div class="product-single__addtocart">
-
-                            <div class="qty-control position-relative">
-                                <input type="number" name="quantity" value="1" min="1"
-                                    class="qty-control__number text-center">
-                                <div class="qty-control__reduce">-</div>
-                                <div class="qty-control__increase">+</div>
-                            </div>
-
-                            <input type="hidden" name="id" value="{{ $product->id }}" />
-
-                            {{-- Size --}}
-                            @if (!empty($product->sizes))
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium mb-1">Size <span class="text-danger">*</span></label>
-                                    <select name="size" class="form-select form-select-lg shadow-sm" required>
-                                        <option value="">Select size</option>
-                                        @foreach ($product->sizes as $size)
-                                            <option value="{{ $size }}">{{ $size }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            @endif
-
-                            {{-- Color --}}
-                            @if (!empty($product->colors))
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium mb-1">Color <span class="text-danger">*</span></label>
-                                    <select name="color" class="form-select form-select-lg shadow-sm" required>
-                                        <option value="">Select colour</option>
-                                        @foreach ($product->colors as $color)
-                                            <option value="{{ $color }}">{{ $color }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            @endif
-
-                            <input type="hidden" name="name" value="{{ $product->name }}" />
-                            <input type="hidden" name="price"
-                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-
-                            <button type="submit" class="btn btn-primary btn-addtocart">
-                                Add to Cart
-                            </button>
-                        </div>
-                    </form>
-
-                    @else
-
-                        <div class="out-of-stock-box">
-                            OUT OF STOCK
-                        </div>
-
-                    @endif
                     
+                    @if ($product->stock_status === 'outofstock' || $product->quantity === 0)
+                        <div class="alert alert-danger d-flex align-items-center gap-2 py-2 px-3 mb-3" role="alert" style="border-radius: 6px; font-size: 0.9rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                            </svg>
+                            <strong>Out of Stock</strong> — This item is currently unavailable.
+                        </div>
+                    @elseif ($product->quantity <= 5)
+                        <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-3" role="alert" style="border-radius: 6px; font-size: 0.9rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                            </svg>
+                            <strong>Low Stock!</strong> — Only <strong>{{ $product->quantity }}</strong> left. Order soon!
+                        </div>
+                    @elseif ($product->quantity <= 10)
+                        <div class="alert alert-info d-flex align-items-center gap-2 py-2 px-3 mb-3" role="alert" style="border-radius: 6px; font-size: 0.9rem; background-color: #fff3cd; border-color: #ffc107; color: #664d03;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="flex-shrink-0">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+                            </svg>
+                            <strong>Almost Gone</strong> — Only <strong>{{ $product->quantity }}</strong> items remaining.
+                        </div>
+                    @endif
+                   
+                        <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
+                            @csrf
+                            <div class="product-single__addtocart">
+                                <div class="qty-control position-relative">
+                                    <input type="number" name="quantity" value="1" min="1"
+                                        class="qty-control__number text-center">
+                                    <div class="qty-control__reduce">-</div>
+                                    <div class="qty-control__increase">+</div>
+                                </div>
+                                <input type="hidden" name="id" value="{{ $product->id }}" />
+                                @if (!empty($product->sizes))
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium mb-1">Size <span
+                                                class="text-danger">*</span></label>
+                                        <select name="size" class="form-select form-select-lg shadow-sm"
+                                            style="padding-right: 2.5rem; min-height: 50px; font-size: 16px; padding-left: 1rem;"
+                                            required>
+
+                                            <option value="">Select size</option>
+                                            @foreach ($product->sizes as $size)
+                                                <option value="{{ $size }}">{{ $size }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                      
+                                @if (!empty($product->colors))
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium mb-1">Color <span
+                                                class="text-danger">*</span></label>
+                                        <select name="color" class="form-select form-select-lg shadow-sm"
+                                            style="padding-right: 2.5rem; min-height: 50px; font-size: 16px;" required>
+                                            <option value="">Select colour</option>
+                                            @foreach ($product->colors as $color)
+                                                <option value="{{ $color }}">{{ $color }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
+                                <input type="hidden" name="name" value="{{ $product->name }}" />
+                                <input type="hidden" name="price"
+                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                <button type="submit" class="btn btn-primary btn-addtocart" data-aside="cartDrawer"
+                                    {{ ($product->stock_status === 'outofstock' || $product->quantity === 0) ? 'disabled' : '' }}>
+                                    {{ ($product->stock_status === 'outofstock' || $product->quantity === 0) ? 'Out of Stock' : 'Add to Cart' }}
+                                </button>
+                            </div>
+                        </form>
+                    @endif
                     <div class="product-single__addtolinks">
                         @if (Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
                             <form method="POST"
@@ -295,7 +294,7 @@
                     <li class="nav-item" role="presentation">
                         <a class="nav-link nav-link_underscore" id="tab-reviews-tab" data-bs-toggle="tab"
                             href="#tab-reviews" role="tab" aria-controls="tab-reviews" aria-selected="false">Reviews
-                            (2)</a>
+                            ({{ $product->reviews->count() }})</a>
                     </li>
                 </ul>
                 <div class="tab-content">
@@ -344,7 +343,7 @@
                                     <div class="reviews-group d-flex">
                                         @for($i = 1; $i <= 5; $i++)
                                             <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
-                                                fill="{{ $i <= $review->rating ? '#ffc107' : '#ccc' }}">
+                                                style="fill: {{ $i <= $review->rating ? '#ffc107' : '#ccc' }}">
                                                 <use href="#icon_star" />
                                             </svg>
                                         @endfor
@@ -481,26 +480,26 @@
                             </div>
                         @endforeach
 
-                    </div><!-- /.swiper-wrapper -->
-                </div><!-- /.swiper-container js-swiper-slider -->
+                    </div>
+                </div>
 
                 <div
                     class="products-carousel__prev position-absolute top-50 d-flex align-items-center justify-content-center">
                     <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
                         <use href="#icon_prev_md" />
                     </svg>
-                </div><!-- /.products-carousel__prev -->
+                </div>
                 <div
                     class="products-carousel__next position-absolute top-50 d-flex align-items-center justify-content-center">
                     <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
                         <use href="#icon_next_md" />
                     </svg>
-                </div><!-- /.products-carousel__next -->
+                </div>
 
                 <div class="products-pagination mt-4 mb-5 d-flex align-items-center justify-content-center"></div>
-                <!-- /.products-pagination -->
-            </div><!-- /.position-relative -->
+                
+            </div>
 
-        </section><!-- /.products-carousel container -->
+        </section>
     </main>
 @endsection
