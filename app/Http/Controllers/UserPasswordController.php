@@ -13,7 +13,7 @@ class UserPasswordController extends Controller
      */
     public function edit()
     {
-        return view('user.account-details');
+        return view('user.account-password');
     }
 
     /**
