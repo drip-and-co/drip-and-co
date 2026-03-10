@@ -22,10 +22,10 @@
                 <h5>Shipping Address</h5>
 
                 <div class="my-account__address-item col-md-6">
-                    @forelse($addresses as $address)
+                    @foreach($addresses as $address)
                         <div class="my-account__address-item__title">
                         <p>{{ $address->name }}</p>
-                        <a href="#">Edit</a>
+                        <a href="{{ route('user.address.edit', ['id' => $address->id]) }}">Edit</a>
                         </div>
                         <div class="my-account__address-item__detail">
                     
@@ -34,12 +34,10 @@
                         <p>{{ $address->zip }}</p>
                         <br>
                         <p>{{ $address->phone }}</p>
-                        </div>
-                    @empty
-                        <p>no users found</p>
-                    @endforelse    
+                        </div>  
                 </div>
                 <hr>
+                @endforeach
                 </div>
             </div>
             </div>
