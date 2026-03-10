@@ -153,4 +153,22 @@ class UserController extends Controller
     return back()->with('status', 'Address added successfully!');
 
     }
+
+    public function address_delete($id)
+    {
+        $address = Address::where('user_id', Auth::id())->where('id', $id)->first();
+        if (!$address) {
+            return back()->with('error', 'Address not found.');
+        }
+        $wasDefault = (bool) $address->isdefault;
+        $address->delete();
+        if ($wasDefault) {
+            $newDefault = Address::where('user_id', Auth::id())->first();
+            if ($newDefault) {
+                $newDefault->isdefault = true;
+                $newDefault->save();
+            }
+        }
+        return back()->with('status', 'Address deleted successfully.');
+    }
 }

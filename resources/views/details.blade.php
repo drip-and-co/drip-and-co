@@ -126,8 +126,12 @@
                     @php
                         // if there are variants, consider product as in stock if any variant has quantity >0
                         $hasInStockVariant = $product->variants->contains(function($v){ return $v->quantity > 0; });
+                        $stockQty = $product->variants->count() ? $product->variants->sum('quantity') : $product->quantity;
+                        $lowStockQty = $stockQty > 0 && $stockQty <= 5;
                     @endphp
                     @if($product->quantity > 0 || $hasInStockVariant)
+
+                    <p class="text-warning fw-medium mb-3" id="low-stock-msg" style="{{ $lowStockQty ? '' : 'display:none;' }}">Low stock – only <span id="low-stock-qty">{{ $stockQty }}</span> left.</p>
 
                     <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
                         @csrf
@@ -190,6 +194,7 @@
 
                     <script>
                         function updateVariantStock() {
+                            if (!window.productVariants || window.productVariants.length === 0) return;
                             let size = $('select[name=size]').val();
                             let color = $('select[name=color]').val();
                             let qty = null;
@@ -202,13 +207,20 @@
                             if (qty !== null) {
                                 if (qty <= 0) {
                                     $('.btn-addtocart').prop('disabled', true).addClass('btn-outofstock').text('Out of stock');
+                                    $('#low-stock-msg').hide();
                                 } else {
                                     $('.btn-addtocart').prop('disabled', false).removeClass('btn-outofstock').text('Add to Cart');
                                     $('input[name=quantity]').attr('max', qty);
+                                    if (qty <= 5) {
+                                        $('#low-stock-qty').text(qty);
+                                        $('#low-stock-msg').show();
+                                    } else {
+                                        $('#low-stock-msg').hide();
+                                    }
                                 }
                             } else {
-                                // no matching variant/combo
                                 $('.btn-addtocart').prop('disabled', true).addClass('btn-outofstock').text('Out of stock');
+                                $('#low-stock-msg').hide();
                             }
                         }
                         $('select[name=size], select[name=color]').on('change', updateVariantStock);
@@ -220,55 +232,6 @@
                         <div class="out-of-stock-box">
                             OUT OF STOCK
                         </div>
-                    @endif
-                   
-                        <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
-                            @csrf
-                            <div class="product-single__addtocart">
-                                <div class="qty-control position-relative">
-                                    <input type="number" name="quantity" value="1" min="1"
-                                        class="qty-control__number text-center">
-                                    <div class="qty-control__reduce">-</div>
-                                    <div class="qty-control__increase">+</div>
-                                </div>
-                                <input type="hidden" name="id" value="{{ $product->id }}" />
-                                @if (!empty($product->sizes))
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium mb-1">Size <span
-                                                class="text-danger">*</span></label>
-                                        <select name="size" class="form-select form-select-lg shadow-sm"
-                                            style="padding-right: 2.5rem; min-height: 50px; font-size: 16px; padding-left: 1rem;"
-                                            required>
-
-                                            <option value="">Select size</option>
-                                            @foreach ($product->sizes as $size)
-                                                <option value="{{ $size }}">{{ $size }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                      
-                                @if (!empty($product->colors))
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium mb-1">Color <span
-                                                class="text-danger">*</span></label>
-                                        <select name="color" class="form-select form-select-lg shadow-sm"
-                                            style="padding-right: 2.5rem; min-height: 50px; font-size: 16px;" required>
-                                            <option value="">Select colour</option>
-                                            @foreach ($product->colors as $color)
-                                                <option value="{{ $color }}">{{ $color }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                @endif
-                                <input type="hidden" name="name" value="{{ $product->name }}" />
-                                <input type="hidden" name="price"
-                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                <button type="submit" class="btn btn-primary btn-addtocart" data-aside="cartDrawer"
-                                    {{ ($product->stock_status === 'outofstock' || $product->quantity === 0) ? 'disabled' : '' }}>
-                                    {{ ($product->stock_status === 'outofstock' || $product->quantity === 0) ? 'Out of Stock' : 'Add to Cart' }}
-                                </button>
-                            </div>
-                        </form>
                     @endif
                     <div class="product-single__addtolinks">
                         @if (Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)

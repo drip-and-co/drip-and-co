@@ -57,20 +57,25 @@
               <div class="col-6">
               </div>
             </div>
-            @if($address)
+            @if($addresses && $addresses->count() > 0)
                 <div class="row">
                   <div class="col-md-12">
+                    <p class="mb-3">Choose the delivery address for this order:</p>
                     <div class="my-account__address-list">
-                      <div class="my-account__address-list-item">
-                        <div class="my-account__address-item__detail">
-                          <p>{{ $address->name }}</p>
-                          <p>{{ $address->address }} {{ $address->locality }}</p>
-                          <p>{{ $address->city }}, {{ $address->state }}</p>
-                          <p>{{ $address->zip }}</p>
-                          <br>
-                          <p>{{ $address->phone }}</p>
-                        </div>
+                      @foreach($addresses as $addr)
+                      <div class="my-account__address-list-item mb-3 p-3 border rounded">
+                        <label class="d-flex align-items-start gap-3 cursor-pointer mb-0">
+                          <input type="radio" name="address_id" value="{{ $addr->id }}" class="mt-1" required
+                            {{ ($address && $address->id === $addr->id) ? 'checked' : '' }}>
+                          <div class="my-account__address-item__detail flex-grow-1">
+                            <p class="fw-medium mb-1">{{ $addr->name }}</p>
+                            <p class="mb-0">{{ $addr->address }} {{ $addr->locality }}</p>
+                            <p class="mb-0">{{ $addr->city }}, {{ $addr->state }} {{ $addr->zip }}</p>
+                            <p class="mb-0 text-muted">{{ $addr->phone }}</p>
+                          </div>
+                        </label>
                       </div>
+                      @endforeach
                     </div>
                   </div>
                 </div>
