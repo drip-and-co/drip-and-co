@@ -214,6 +214,66 @@
                             <sapn class="alert alert-danger text-center">{{ $message }}
                             @enderror
 
+                            <!-- variant manager -->
+                            <fieldset class="variants">
+                                <div class="body-title mb-10">Variants (size / color / SKU / qty)</div>
+                                <table class="table table-bordered" id="variantTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Size</th>
+                                            <th>Color</th>
+                                            <th>SKU</th>
+                                            <th>Qty</th>
+                                            <th><button type="button" class="btn btn-sm btn-success" id="addVariant">+</button></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($product->variants as $v)
+                                            <tr>
+                                                <td><select name="variants[{{ $loop->index }}][size]" class="form-select js-multi-no-range"
+                                                    style="height: 120px;">
+                                                    <option value="S"
+                                                        {{ $v->size == 'S' ? 'selected' : '' }}>
+                                                        S</option>
+                                                    <option value="M"
+                                                        {{ $v->size == 'M' ? 'selected' : '' }}>
+                                                        M</option>
+                                                    <option value="L"
+                                                        {{ $v->size == 'L' ? 'selected' : '' }}>
+                                                        L</option>
+                                                    <option value="XL"
+                                                        {{ $v->size == 'XL' ? 'selected' : '' }}>
+                                                        XL</option>
+                                                </select></td>
+
+                                                <td><select name="variants[{{ $loop->index }}][color]" class="form-select js-multi-no-range"
+                                                    style="height: 120px;">
+                                                    <option value="White"
+                                                        {{ $v->color == 'White' ? 'selected' : '' }}>
+                                                        White</option>
+                                                    <option value="Black"
+                                                        {{ $v->color == 'Black' ? 'selected' : '' }}>
+                                                        Black</option>
+                                                    <option value="Grey"
+                                                        {{ $v->color == 'Grey' ? 'selected' : '' }}>
+                                                        Grey</option>
+                                                    <option value="Green"
+                                                        {{ $v->color == 'Green' ? 'selected' : '' }}>
+                                                        Green</option>
+                                                    <option value="Pink"
+                                                        {{ $v->color == 'Pink' ? 'selected' : '' }}>
+                                                        {{ $product->stock_status == 'instock' ? 'selected' : '' }}
+                                                        Pink</option>
+                                                </select></td>
+                                                <td><input type="text" name="variants[{{ $loop->index }}][SKU]" value="{{ $v->SKU }}" class="form-control" /></td>
+                                                <td><input type="number" name="variants[{{ $loop->index }}][quantity]" value="{{ $v->quantity }}" class="form-control" min="0" /></td>
+                                                <td><button type="button" class="btn btn-sm btn-danger removeVariant">-</button></td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </fieldset>
+
                             <div class="cols gap22">
                                 <fieldset class="name">
                                     <div class="body-title mb-10">Regular Price <span class="tf-color-1">*</span></div>
@@ -332,5 +392,38 @@
                 .replace(/[^\w ]+/g, "")
                 .replace(/ +/g, "-");
         }
-    </script>
+        // variant table helper (same as add page)
+        function addVariantRow(data = {}) {
+            const index = $('#variantTable tbody tr').length;
+            const row = `<tr>
+                            <td><select name="variants[${index}][size]" class="form-select"
+                                style="height: 100px;">
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                            </select></td>
+                            
+                            <td><select name="variants[${index}][color]" class="form-select"
+                                style="height: 120px;">
+                                <option value="White" >White</option>
+                                <option value="Black" >Black</option>
+                                <option value="Grey" >Grey</option>
+                                <option value="Green" >Green</option>
+                                <option value="Pink" >Pink</option>
+                            </select></td>
+                            <td><input type="text" name="variants[${index}][SKU]" value="${data.SKU||''}" class="form-control" /></td>
+                            <td><input type="number" name="variants[${index}][quantity]" value="${data.quantity||''}" class="form-control" min="0" /></td>
+                            <td><button type="button" class="btn btn-sm btn-danger removeVariant">-</button></td>
+                        </tr>`;
+            $('#variantTable tbody').append(row);
+        }
+
+        $(document).on('click', '#addVariant', function() {
+            addVariantRow();
+        });
+
+        $(document).on('click', '.removeVariant', function() {
+            $(this).closest('tr').remove();
+        });    </script>
 @endpush

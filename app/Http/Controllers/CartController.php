@@ -25,15 +25,45 @@ class CartController extends Controller
     public function add_to_cart(Request $request)
     {
            $product = Product::find($request->id);
-    $options = [];
-    if ($product && $request->has('size') && in_array($request->size, $product->sizes ?? [])) {
-        $options['size'] = $request->size;
+    $options = ['product_id' => $request->id];
+
+    // if size/color provided, look up the variant
+    $variant = null;
+    if ($product && ($request->has('size') || $request->has('color'))) {
+        $query = $product->variants();
+        if ($request->has('size')) {
+            $query->where('size', $request->size);
+            $options['size'] = $request->size;
+        }
+        if ($request->has('color')) {
+            $query->where('color', $request->color);
+            $options['color'] = $request->color;
+        }
+        $variant = $query->first();
+        if ($variant) {
+            $options['variant_id'] = $variant->id;
+        }
     }
-    if ($product && $request->has('color') && in_array($request->color, $product->colors ?? [])) {
-        $options['color'] = $request->color;
+
+    // prevent adding more than available stock
+    if ($variant) {
+        if ($request->quantity > $variant->quantity) {
+            return redirect()->back()->with('error', 'Requested quantity exceeds available stock for the selected variant.');
+        }
+    } else {
+        if ($product && $request->quantity > $product->quantity) {
+            return redirect()->back()->with('error', 'Requested quantity exceeds available stock.');
+        }
     }
-    
-    Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price, $options)->associate('App\Models\Product');
+
+    Cart::instance('cart')->add(
+        $variant ? 'variant-'.$variant->id : $request->id,
+        $request->name,
+        $request->quantity,
+        $request->price,
+        $options
+    )->associate('App\Models\Product');
+
     return redirect()->back();
     }
 
@@ -134,13 +164,20 @@ class CartController extends Controller
 
         $address = Address::where('user_id',Auth::user()->id)->where('isdefault',1)->first();
 
-        // Build stock warnings and available quantities per product for the view
+        // Build stock warnings and available quantities per product/variant for the view
         $stockWarnings = [];
         $availableByProduct = [];
         foreach (Cart::instance('cart')->content() as $item) {
-            $product = Product::find($item->id);
-            $available = $product ? (int) $product->quantity : 0;
-            $availableByProduct[$item->id] = $available;
+            $available = 0;
+            if (isset($item->options['variant_id'])) {
+                $variant = \App\Models\ProductVariant::find($item->options['variant_id']);
+                $available = $variant ? (int) $variant->quantity : 0;
+                $availableByProduct['variant_'.$item->options['variant_id']] = $available;
+            } else {
+                $product = Product::find($item->id);
+                $available = $product ? (int) $product->quantity : 0;
+                $availableByProduct[$item->id] = $available;
+            }
             if ($available < (int) $item->qty) {
                 $stockWarnings[] = [
                     'name'      => $item->name,
@@ -208,21 +245,43 @@ class CartController extends Controller
             foreach (Cart::instance('cart')->content() as $item)
             {
                 $orderItem = new OrderItem();
-                $orderItem->product_id = $item->id;
+                $orderItem->product_id = $item->options['product_id'] ?? $item->id;
                 $orderItem->order_id = $order->id;
                 $orderItem->price = $item->price;
                 $orderItem->quantity = $item->qty;
                 $orderItem->options = json_encode($item->options);
                 $orderItem->save();
 
-                $product = Product::find($item->id);
-                if ($product) {
-                    $newQuantity = max(0, $product->quantity - $item->qty);
-                    $product->quantity = $newQuantity;
-                    if ($newQuantity === 0) {
-                        $product->stock_status = 'outofstock';
+                // if variant exists reduce its quantity, otherwise fall back to product
+                if (isset($item->options['variant_id'])) {
+                    $variant = \App\Models\ProductVariant::find($item->options['variant_id']);
+                    if ($variant) {
+                        $newQuantity = max(0, $variant->quantity - $item->qty);
+                        $variant->quantity = $newQuantity;
+                        $variant->stock_status = $newQuantity > 0 ? 'instock' : 'outofstock';
+                        $variant->save();
+
+                        // update parent product status based on remaining in-stock variants
+                        $product = $variant->product;
+                        if ($product) {
+                            if ($product->variants()->where('stock_status','instock')->exists()) {
+                                $product->stock_status = 'instock';
+                            } else {
+                                $product->stock_status = 'outofstock';
+                            }
+                            $product->save();
+                        }
                     }
-                    $product->save();
+                } else {
+                    $product = Product::find($item->id);
+                    if ($product) {
+                        $newQuantity = max(0, $product->quantity - $item->qty);
+                        $product->quantity = $newQuantity;
+                        if ($newQuantity === 0) {
+                            $product->stock_status = 'outofstock';
+                        }
+                        $product->save();
+                    }
                 }
             }
 

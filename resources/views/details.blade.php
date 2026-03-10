@@ -138,10 +138,24 @@
                         <p>{{ $product->short_description }}</p>
                     </div>
 
-                    @if($product->quantity > 0)
+                    @php
+                        // if there are variants, consider product as in stock if any variant has quantity >0
+                        $hasInStockVariant = $product->variants->contains(function($v){ return $v->quantity > 0; });
+                    @endphp
+                    @if($product->quantity > 0 || $hasInStockVariant)
 
                     <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
                         @csrf
+                        <script>
+                            window.productVariants = {!! json_encode($product->variants->map(function($v){
+                                return [
+                                    'id' => $v->id,
+                                    'size' => $v->size,
+                                    'color' => $v->color,
+                                    'quantity' => $v->quantity
+                                ];
+                            })) !!};
+                        </script>
                         <div class="product-single__addtocart">
 
                             <div class="qty-control position-relative">
@@ -188,6 +202,33 @@
                             </button>
                         </div>
                     </form>
+
+                    <script>
+                        function updateVariantStock() {
+                            let size = $('select[name=size]').val();
+                            let color = $('select[name=color]').val();
+                            let qty = null;
+                            window.productVariants.forEach(v => {
+                                if ((size === undefined || size === '' || v.size === size) &&
+                                    (color === undefined || color === '' || v.color === color)) {
+                                    qty = v.quantity;
+                                }
+                            });
+                            if (qty !== null) {
+                                if (qty <= 0) {
+                                    $('.btn-addtocart').prop('disabled', true).addClass('btn-outofstock').text('Out of stock');
+                                } else {
+                                    $('.btn-addtocart').prop('disabled', false).removeClass('btn-outofstock').text('Add to Cart');
+                                    $('input[name=quantity]').attr('max', qty);
+                                }
+                            } else {
+                                // no matching variant/combo
+                                $('.btn-addtocart').prop('disabled', true).addClass('btn-outofstock').text('Out of stock');
+                            }
+                        }
+                        $('select[name=size], select[name=color]').on('change', updateVariantStock);
+                        $(document).ready(updateVariantStock);
+                    </script>
 
                     @else
 

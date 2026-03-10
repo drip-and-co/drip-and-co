@@ -187,6 +187,25 @@
                                         <sapn class="alert alert-danger text-center">{{ $message }}
                                         @enderror
 
+                                        <!-- variant manager -->
+                                        <fieldset class="variants">
+                                            <div class="body-title mb-10">Variants (size / color / SKU / qty)</div>
+                                            <table class="table table-bordered" id="variantTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Size</th>
+                                                        <th>Color</th>
+                                                        <th>SKU</th>
+                                                        <th>Qty</th>
+                                                        <th><button type="button" class="btn btn-sm btn-success" id="addVariant">+</button></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {{-- old values or leave blank --}}
+                                                </tbody>
+                                            </table>
+                                        </fieldset>
+
                                         <div class="cols gap22">
                                             <fieldset class="name">
                                                 <div class="body-title mb-10">Regular Price <span
@@ -305,5 +324,39 @@
                 .replace(/[^\w ]+/g, "")
                 .replace(/ +/g, "-");
         }
-    </script>
+        /* variant table helper */
+        function addVariantRow(data = {}) {
+            const index = $('#variantTable tbody tr').length;
+            const row = `<tr>
+                        <td><select name="variants[${index}][size]" class="form-select"
+                                style="height: 100px;">
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="XL">XL</option>
+                            </select></td>
+                            
+                            <td><select name="variants[${index}][color]" class="form-select"
+                                style="height: 120px;">
+                                <option value="White" >White</option>
+                                <option value="Black" >Black</option>
+                                <option value="Grey" >Grey</option>
+                                <option value="Green" >Green</option>
+                                <option value="Pink" >Pink</option>
+                            </select></td>
+                        
+                        <td><input type="text" name="variants[${index}][SKU]" value="${data.SKU||''}" class="form-control" /></td>
+                        <td><input type="number" name="variants[${index}][quantity]" value="${data.quantity||''}" class="form-control" min="0" /></td>
+                        <td><button type="button" class="btn btn-sm btn-danger removeVariant">-</button></td>
+                    </tr>`;
+            $('#variantTable tbody').append(row);
+        }
+
+        $(document).on('click', '#addVariant', function() {
+            addVariantRow();
+        });
+
+        $(document).on('click', '.removeVariant', function() {
+            $(this).closest('tr').remove();
+        });    </script>
 @endpush

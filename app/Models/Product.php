@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ProductVariant;
 
 class Product extends Model
 {
@@ -26,6 +27,7 @@ class Product extends Model
 
     public function getSizesAttribute($value)
     {
+        // keep the old comma-separated sizes on the product for backwards compatibility
         return $value ? explode(',', trim($value, ',')) : [];
     }
 
@@ -36,11 +38,20 @@ class Product extends Model
 
     public function getColorsAttribute($value)
     {
+        // keep the old comma-separated colors on the product for backwards compatibility
         return $value ? explode(',', trim($value, ',')) : [];
     }
 
     public function setColorsAttribute($value)
     {
         $this->attributes['colors'] = is_array($value) ? implode(',', array_map('trim', $value)) : $value;
+    }
+
+    /**
+     * Variants allow independent stock by size/color combination.
+     */
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 }

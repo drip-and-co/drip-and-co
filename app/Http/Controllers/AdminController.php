@@ -261,7 +261,13 @@ class AdminController extends Controller
             'category_id' => 'required',
             'brand_id' => 'required',
             'sizes' => 'nullable|array',
-            'colors' => 'nullable|array'
+            'colors' => 'nullable|array',
+            // variant-specific input: array of maps
+            'variants' => 'nullable|array',
+            'variants.*.size' => 'nullable|string',
+            'variants.*.color' => 'nullable|string',
+            'variants.*.quantity' => 'required_with:variants.*|integer|min:0',
+            'variants.*.SKU' => 'nullable|string',
         ]);
 
         $product = new Product();
@@ -279,6 +285,31 @@ class AdminController extends Controller
         $product->brand_id = $request->brand_id;
         $product->sizes = $request->sizes ?? [];
         $product->colors = $request->colors ?? [];
+        // sync variants if provided
+        if ($request->filled('variants')) {
+            // remove existing variants and recreate
+            $product->variants()->delete();
+            foreach ($request->variants as $vdata) {
+                if (!isset($vdata['quantity'])) {
+                    continue;
+                }
+
+                \App\Models\ProductVariant::create([
+                    'product_id' => $product->id,
+                    'size'       => $vdata['size'] ?? null,
+                    'color'      => $vdata['color'] ?? null,
+                    'SKU'        => $vdata['SKU'] ?? null,
+                    'quantity'   => $vdata['quantity'],
+                    'stock_status' => $vdata['quantity'] > 0 ? 'instock' : 'outofstock',
+                ]);
+            }
+            // recalc aggregate values
+            $agg = $product->variants()->sum('quantity');
+            $product->quantity = $agg;
+            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+        }
+
+        
 
 
         $current_timestamp = Carbon::now()->timestamp;
@@ -310,7 +341,8 @@ class AdminController extends Controller
         }
         $product->images = $gallery_images;
         $product->save();
-        return redirect()->route('admin.products')->with('status', 'Product has been added successfully');
+
+        return redirect()->route('admin.products')->with('status', 'Product has been updated successfully');
     }
 
     public function GenerateProductThumbnailImage($image, $imageName)
@@ -353,7 +385,12 @@ class AdminController extends Controller
             'category_id' => 'required',
             'brand_id' => 'required',
             'sizes' => 'nullable|array',
-            'colors' => 'nullable|array'
+            'colors' => 'nullable|array',
+            'variants' => 'nullable|array',
+            'variants.*.size' => 'nullable|string',
+            'variants.*.color' => 'nullable|string',
+            'variants.*.quantity' => 'required_with:variants.*|integer|min:0',
+            'variants.*.SKU' => 'nullable|string',
         ]);
 
         $product = Product::find($request->id);
@@ -369,6 +406,30 @@ class AdminController extends Controller
         $product->quantity = $request->quantity;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
+
+        // sync variants if provided
+        if ($request->filled('variants')) {
+            // remove existing variants and recreate
+            $product->variants()->delete();
+            foreach ($request->variants as $vdata) {
+                if (!isset($vdata['quantity'])) {
+                    continue;
+                }
+
+                \App\Models\ProductVariant::create([
+                    'product_id' => $product->id,
+                    'size'       => $vdata['size'] ?? null,
+                    'color'      => $vdata['color'] ?? null,
+                    'SKU'        => $vdata['SKU'] ?? null,
+                    'quantity'   => $vdata['quantity'],
+                    'stock_status' => $vdata['quantity'] > 0 ? 'instock' : 'outofstock',
+                ]);
+            }
+            // recalc aggregate values
+            $agg = $product->variants()->sum('quantity');
+            $product->quantity = $agg;
+            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+        }
 
         $current_timestamp = Carbon::now()->timestamp;
         if ($request->hasFile('image')) {
@@ -544,13 +605,33 @@ class AdminController extends Controller
             if ($previousStatus != 'canceled') {
 
                 foreach ($order->orderItems as $item) {
+                    // handle variant if present
+                    $variant = null;
+                    if (!empty($item->options)) {
+                        $opts = json_decode($item->options, true);
+                        if (isset($opts['variant_id'])) {
+                            $variant = \App\Models\ProductVariant::find($opts['variant_id']);
+                        }
+                    }
 
-                    $product = Product::find($item->product_id);
-
-                    if ($product) {
-                        $product->quantity += $item->quantity;
-                        $product->stock_status = 'instock';
-                        $product->save();
+                    if ($variant) {
+                        $variant->quantity += $item->quantity;
+                        $variant->stock_status = 'instock';
+                        $variant->save();
+                        // update parent product aggregate
+                        $product = $variant->product;
+                        if ($product) {
+                            $product->quantity = $product->variants()->sum('quantity');
+                            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+                            $product->save();
+                        }
+                    } else {
+                        $product = Product::find($item->product_id);
+                        if ($product) {
+                            $product->quantity += $item->quantity;
+                            $product->stock_status = 'instock';
+                            $product->save();
+                        }
                     }
                 }
             }
@@ -560,15 +641,39 @@ class AdminController extends Controller
         if ($request->order_status == 'delivered') {
             if ($previousStatus === 'canceled') {
                 foreach ($order->orderItems as $item) {
-                    $product = Product::find($item->product_id);
-                    if ($product) {
-                        $product->quantity -= $item->quantity;
-                        if ($product->quantity > 0) {
-                            $product->stock_status = 'instock';
-                        } else {
-                            $product->stock_status = 'outofstock';
+                    $variant = null;
+                    if (!empty($item->options)) {
+                        $opts = json_decode($item->options, true);
+                        if (isset($opts['variant_id'])) {
+                            $variant = \App\Models\ProductVariant::find($opts['variant_id']);
                         }
-                        $product->save();
+                    }
+                    if ($variant) {
+                        $variant->quantity = max(0, $variant->quantity - $item->quantity);
+                        if ($variant->quantity > 0) {
+                            $variant->stock_status = 'instock';
+                        } else {
+                            $variant->stock_status = 'outofstock';
+                        }
+                        $variant->save();
+                        // update product aggregate
+                        $product = $variant->product;
+                        if ($product) {
+                            $product->quantity = $product->variants()->sum('quantity');
+                            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+                            $product->save();
+                        }
+                    } else {
+                        $product = Product::find($item->product_id);
+                        if ($product) {
+                            $product->quantity -= $item->quantity;
+                            if ($product->quantity > 0) {
+                                $product->stock_status = 'instock';
+                            } else {
+                                $product->stock_status = 'outofstock';
+                            }
+                            $product->save();
+                        }
                     }
                 }
             }
