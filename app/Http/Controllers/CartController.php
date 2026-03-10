@@ -83,6 +83,14 @@ class CartController extends Controller
         return redirect()->back();
     }
 
+    public function update_cart_quantity(Request $request, $rowId)
+    {
+        $request->validate(['quantity' => 'required|integer|min:1']);
+        $qty = (int) $request->quantity;
+        Cart::instance('cart')->update($rowId, $qty);
+        return redirect()->back();
+    }
+
     public function remove_item($rowId)
     {
         Cart::instance('cart')->remove($rowId);
@@ -162,7 +170,8 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
-        $address = Address::where('user_id',Auth::user()->id)->where('isdefault',1)->first();
+        $addresses = Address::where('user_id', Auth::user()->id)->orderBy('isdefault', 'desc')->get();
+        $address = $addresses->where('isdefault', 1)->first() ?? $addresses->first();
 
         // Build stock warnings and available quantities per product/variant for the view
         $stockWarnings = [];
@@ -187,40 +196,52 @@ class CartController extends Controller
             }
         }
 
-        return view('checkout', compact('address', 'stockWarnings', 'availableByProduct'));
+        return view('checkout', compact('address', 'addresses', 'stockWarnings', 'availableByProduct'));
     }
 
     public function place_an_order(Request $request)
     {
         $user_id = Auth::user()->id;
-        $address = Address::where('user_id', $user_id)->where('isdefault', true)->first();
-        if(!$address)
-            {
-                $request->validate([
-                    'name' => 'required|max:100',
-                    'phone' => 'required|numeric|digits:10',
-                    'zip' => ['required', 'regex:/^([A-Z]{1,2}[0-9]{1,2}[A-Z]?(?:\s?[0-9][A-Z]{2})?)$/i'],
-                    'state' => 'required',
-                    'city' => 'required',
-                    'address' => 'required',
-                    'locality' => 'required',
-                    'mode' => 'required|in:card,paypal,cod'
-        
-                ]);
+        $address = null;
 
-                $address = new Address();
-                $address->name = $request->name;
-                $address->phone = $request->phone;
-                $address->zip = $request->zip;
-                $address->state = $request->state;
-                $address->city = $request->city;
-                $address->address = $request->address;
-                $address->locality = $request->locality;
-                $address->country = 'United Kingdom';
-                $address->user_id = $user_id;
-                $address->isdefault = true;
-                $address->save();
+        if ($request->filled('address_id')) {
+            $address = Address::where('user_id', $user_id)->where('id', $request->address_id)->first();
+            if (!$address) {
+                return redirect()->route('cart.checkout')->with('error', 'Selected address is invalid.');
             }
+        }
+
+        if (!$address) {
+            $address = Address::where('user_id', $user_id)->where('isdefault', true)->first();
+        }
+
+        if (!$address) {
+            $request->validate([
+                'name' => 'required|max:100',
+                'phone' => 'required|numeric|digits:10',
+                'zip' => ['required', 'regex:/^([A-Z]{1,2}[0-9]{1,2}[A-Z]?(?:\s?[0-9][A-Z]{2})?)$/i'],
+                'state' => 'required',
+                'city' => 'required',
+                'address' => 'required',
+                'locality' => 'required',
+                'mode' => 'required|in:card,paypal,cod'
+            ]);
+
+            $address = new Address();
+            $address->name = $request->name;
+            $address->phone = $request->phone;
+            $address->zip = $request->zip;
+            $address->state = $request->state;
+            $address->city = $request->city;
+            $address->address = $request->address;
+            $address->locality = $request->locality;
+            $address->country = 'United Kingdom';
+            $address->user_id = $user_id;
+            $address->isdefault = true;
+            $address->save();
+        }
+
+        $request->validate(['mode' => 'required|in:card,paypal,cod']);
 
             $this->setAmountforCheckout();
 

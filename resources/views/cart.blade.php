@@ -90,8 +90,16 @@
                                         </td>
                                         <td>
                                             <div class="qty-control position-relative">
-                                                <input type="number" name="quantity" value="{{ $item->qty }}"
-                                                    min="1" class="qty-control__number text-center">
+                                                <form class="cart-qty-update-form" method="POST"
+                                                    action="{{ route('cart.qty.update', ['rowId' => $item->rowId]) }}"
+                                                    style="display:none;">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="quantity" value="{{ $item->qty }}">
+                                                </form>
+                                                <input type="number" value="{{ $item->qty }}"
+                                                    min="1" class="qty-control__number text-center"
+                                                    data-row-id="{{ $item->rowId }}" aria-label="Quantity">
                                                 <form method="POST"
                                                     action="{{ route('cart.qty.decrease', ['rowId' => $item->rowId]) }}">
                                                     @csrf
@@ -259,6 +267,17 @@
                 $(this).closest('form').submit();
             });
 
+            $('.qty-control__number').on('change', function() {
+                var $input = $(this);
+                var qty = parseInt($input.val(), 10);
+                if (isNaN(qty) || qty < 1) {
+                    qty = 1;
+                    $input.val(1);
+                }
+                var $form = $input.siblings('form.cart-qty-update-form');
+                $form.find('input[name=quantity]').val(qty);
+                $form.submit();
+            });
         })
     </script>
 @endpush

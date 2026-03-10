@@ -23,6 +23,7 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add', [CartController::class, 'add_to_cart'])->name('cart.add');
 Route::put('/cart/increase-quantity/{rowId}', [CartController::class, 'increase_cart_quantity'])->name('cart.qty.increase');
 Route::put('/cart/decrease-quantity/{rowId}', [CartController::class, 'decrease_cart_quantity'])->name('cart.qty.decrease');
+Route::put('/cart/update-quantity/{rowId}', [CartController::class, 'update_cart_quantity'])->name('cart.qty.update');
 Route::delete('/cart/remove/{rowId}', [CartController::class, 'remove_item'])->name('cart.item.remove');
 Route::delete('/cart/clear', [CartController::class, 'empty_cart'])->name('cart.empty');
 
@@ -58,7 +59,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/account-address/add', [UserController::class, 'address_save'])->name('user.address.save');
     Route::get('/account-address/edit/{id}', [UserController::class, 'address_edit'])->name('user.address.edit');
     Route::put('/account-address/edit/{id}', [UserController::class, 'address_update'])->name('user.address.update');
-    
+    Route::delete('/account-address/delete/{id}', [UserController::class, 'address_delete'])->name('user.address.delete');
+
     Route::get('/account-details', [UserController::class, 'details'])->name('user.details');
     Route::put('/account-details', [UserController::class, 'details_update'])->name('user.details.update');
 
@@ -119,4 +121,5 @@ Route::middleware(['auth',AuthAdmin::class])->group(function () {
 
      Route::get('/admin/users/{id}/edit', [AdminController::class, 'user_edit'])->name('admin.user.edit');
      Route::put('/admin/users/{id}', [AdminController::class, 'user_update'])->name('admin.user.update');
+     Route::delete('/admin/users/{user}', [AdminController::class, 'user_delete'])->name('admin.user.delete');
 });

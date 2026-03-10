@@ -1086,7 +1086,7 @@
     </footer>
 
     <!-- Chat widget (not on admin dashboard) -->
-    <button type="button" class="chat-widget-trigger" id="chat-widget-trigger" aria-label="Open chat">
+    <button type="button" class="chat-widget-trigger" id="chat-widget-trigger" aria-label="Open or close chat">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
@@ -1227,6 +1227,13 @@
             function closeChat() {
                 panel.classList.remove('is-open');
             }
+            function toggleChat() {
+                if (panel.classList.contains('is-open')) {
+                    closeChat();
+                } else {
+                    openChat();
+                }
+            }
             function saveHistory(messages) {
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
@@ -1320,7 +1327,7 @@
                 startNewChat();
             }
 
-            trigger.addEventListener('click', openChat);
+            trigger.addEventListener('click', toggleChat);
             closeBtn.addEventListener('click', closeChat);
             if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
             form.addEventListener('submit', function(e) {
