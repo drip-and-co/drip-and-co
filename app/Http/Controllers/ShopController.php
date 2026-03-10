@@ -66,18 +66,30 @@ class ShopController extends Controller
                 $query->whereBetween('regular_price', [$min_price, $max_price])
                     ->orWhereBetween('sale_price', [$min_price, $max_price]);
             })
+            // require that product (or its variants) actually has stock
+            ->where(function ($query) {
+                $query->where('quantity', '>', 0)
+                      ->orWhereHas('variants', function ($q) {
+                          $q->where('quantity', '>', 0);
+                      });
+            })
             ->when($colors, function ($query) use ($colors) {
-                $query->where(function ($q) use ($colors) {
-                    foreach ($colors as $color) {
-                        $q->orWhereRaw('FIND_IN_SET(?, colors)', [$color]);
-                    }
+                // when filtering by colors we should make sure at least one variant matching color has stock
+                $query->whereHas('variants', function ($q) use ($colors) {
+                    $q->where(function ($q2) use ($colors) {
+                        foreach ($colors as $color) {
+                            $q2->orWhere('color', $color);
+                        }
+                    })->where('quantity', '>', 0);
                 });
             })
             ->when($sizes, function ($query) use ($sizes) {
-                $query->where(function ($q) use ($sizes) {
-                    foreach ($sizes as $s) {
-                        $q->orWhereRaw('FIND_IN_SET(?, sizes)', [$s]);
-                    }
+                $query->whereHas('variants', function ($q) use ($sizes) {
+                    $q->where(function ($q2) use ($sizes) {
+                        foreach ($sizes as $s) {
+                            $q2->orWhere('size', $s);
+                        }
+                    })->where('quantity', '>', 0);
                 });
             })
             ->orderBy($o_column, $o_order)
@@ -100,7 +112,7 @@ class ShopController extends Controller
 
     public function product_details($product_slug)
     {
-        $product = Product::with('reviews')->where('slug',$product_slug)->first();
+        $product = Product::with(['reviews','variants'])->where('slug',$product_slug)->first();
         $rproducts = Product::where('slug','<>',$product_slug)->take(8)->get();
         return view('details',compact('product','rproducts'));
     }

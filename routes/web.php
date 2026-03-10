@@ -53,6 +53,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account-order/{order_id}/details', [UserController::class, 'order_details'])->name('user.order.details');
     Route::put('/account-order/cancel-order', [UserController::class, 'order_cancel'])->name('user.order.cancel');
 
+    Route::get('/account-address', [UserController::class, 'address'])->name('user.address');
+    Route::get('/account-address/add', [UserController::class, 'address_add'])->name('user.address.add');
+    Route::post('/account-address/add', [UserController::class, 'address_save'])->name('user.address.save');
+    Route::get('/account-address/edit/{id}', [UserController::class, 'address_edit'])->name('user.address.edit');
+    Route::put('/account-address/edit/{id}', [UserController::class, 'address_update'])->name('user.address.update');
+    
+    Route::get('/account-details', [UserController::class, 'details'])->name('user.details');
+    Route::put('/account-details', [UserController::class, 'details_update'])->name('user.details.update');
+
     Route::get('/account-order/{order_id}/return/{item_id}', [ReturnController::class, 'show'])->name('user.return.show');
     Route::post('/account-order/{order_id}/return/{item_id}', [ReturnController::class, 'store'])->name('user.return.store');
 
