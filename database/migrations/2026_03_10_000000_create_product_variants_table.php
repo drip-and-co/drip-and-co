@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('SKU')->nullable();
             $table->unsignedInteger('quantity')->default(0);
             $table->enum('stock_status', ['instock', 'outofstock'])->default('instock');
+            $table->string('image')->nullable();
+            $table->text('images')->nullable();
             $table->timestamps();
         });
     }

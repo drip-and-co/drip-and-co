@@ -251,10 +251,10 @@ class AdminController extends Controller
             'description' => 'required',
             'regular_price' => 'required',
             'sale_price' => 'required',
-            'SKU' => 'required',
+            'SKU' => 'nullable|string',
             'stock_status' => 'required|in:instock,outofstock',
             'featured' => 'required',
-            'quantity' => 'required',
+            'quantity' => 'nullable|integer|min:0',
             'image' => 'required|mimes:png,jpg,jpeg|max:2048',
             'images' => 'nullable',
             'images.*' => 'mimes:jpg,jpeg,png|max:2048',
@@ -277,45 +277,62 @@ class AdminController extends Controller
         $product->description = $request->description;
         $product->regular_price = $request->regular_price;
         $product->sale_price = $request->sale_price;
-        $product->SKU = $request->SKU;
+        $product->SKU = 'PROD-' . time(); // updated from first variant below if variants exist
         $product->stock_status = $request->stock_status;
         $product->featured = $request->featured;
-        $product->quantity = $request->quantity;
+        $product->quantity = 0; // set from sum of variants below
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
-        $product->sizes = $request->sizes ?? [];
-        $product->colors = $request->colors ?? [];
+        $product->sizes = [];
+        $product->colors = [];
 
         // **persist basic product first so we have an ID for variants**
         $product->save();
 
         // sync variants if provided (now that $product->id is available)
         if ($request->filled('variants')) {
-            // remove existing variants and recreate
             $product->variants()->delete();
-            foreach ($request->variants as $vdata) {
+            $current_timestamp = Carbon::now()->timestamp;
+            $allowedExt = ['jpg', 'png', 'jpeg'];
+            foreach ($request->variants as $i => $vdata) {
                 if (!isset($vdata['quantity'])) {
                     continue;
                 }
-
+                $variantGalleryStr = $vdata['gallery_filenames'] ?? null;
+                if (!$variantGalleryStr && $request->hasFile("variants.{$i}.images")) {
+                    $variantGallery = [];
+                    $galleryFiles = $request->file("variants.{$i}.images");
+                    $gcnt = 0;
+                    foreach (is_array($galleryFiles) ? $galleryFiles : [$galleryFiles] as $file) {
+                        if ($file && in_array(strtolower($file->getClientOriginalExtension()), $allowedExt)) {
+                            $gname = $current_timestamp . '-v' . $i . '-g' . ($gcnt++) . '.' . $file->getClientOriginalExtension();
+                            $this->GenerateProductThumbnailImage($file, $gname);
+                            $variantGallery[] = $gname;
+                        }
+                    }
+                    $variantGalleryStr = $variantGallery ? implode(',', $variantGallery) : null;
+                }
                 \App\Models\ProductVariant::create([
-                    'product_id' => $product->id,
-                    'size'       => $vdata['size'] ?? null,
-                    'color'      => $vdata['color'] ?? null,
-                    'SKU'        => $vdata['SKU'] ?? null,
-                    'quantity'   => $vdata['quantity'],
+                    'product_id'   => $product->id,
+                    'size'         => $vdata['size'] ?? null,
+                    'color'        => $vdata['color'] ?? null,
+                    'SKU'          => $vdata['SKU'] ?? null,
+                    'quantity'     => $vdata['quantity'],
                     'stock_status' => $vdata['quantity'] > 0 ? 'instock' : 'outofstock',
+                    'image'        => null,
+                    'images'       => $variantGalleryStr,
                 ]);
             }
-            // recalc aggregate values
             $agg = $product->variants()->sum('quantity');
             $product->quantity = $agg;
             $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
-            // the changed quantities will be saved later after image/gallery handling
+            $first = $product->variants()->first();
+            if ($first && $first->SKU) {
+                $product->SKU = $first->SKU;
+            }
+            $product->sizes = $product->variants()->pluck('size')->filter()->unique()->values()->implode(',');
+            $product->colors = $product->variants()->pluck('color')->filter()->unique()->values()->implode(',');
         }
-
-        
-
 
         $current_timestamp = Carbon::now()->timestamp;
         if ($request->hasFile('image')) {
@@ -365,6 +382,57 @@ class AdminController extends Controller
         })->save($destinationPathThumbnail . '/' . $imageName);
     }
 
+    /**
+     * Upload one or more variant gallery images via AJAX; returns filenames for use in form.
+     */
+    public function uploadVariantGallery(Request $request)
+    {
+        $request->validate(['images' => 'required', 'images.*' => 'image|mimes:jpeg,png,jpg|max:5120']);
+        $files = $request->file('images');
+        if (!is_array($files)) {
+            $files = $files ? [$files] : [];
+        }
+        $allowedExt = ['jpg', 'png', 'jpeg'];
+        $filenames = [];
+        $prefix = Carbon::now()->timestamp . '-' . str_replace('.', '', uniqid('', true));
+        foreach ($files as $i => $file) {
+            if (!$file || !in_array(strtolower($file->getClientOriginalExtension()), $allowedExt)) {
+                continue;
+            }
+            $gname = $prefix . '-g' . $i . '.' . $file->getClientOriginalExtension();
+            $this->GenerateProductThumbnailImage($file, $gname);
+            $filenames[] = $gname;
+        }
+        return response()->json(['filenames' => $filenames]);
+    }
+
+    /**
+     * Delete variant main image and gallery images from disk.
+     */
+    protected function deleteVariantImageFiles(\App\Models\ProductVariant $variant)
+    {
+        $base = public_path('uploads/products');
+        $thumb = public_path('uploads/products/thumbnails');
+        if ($variant->image) {
+            if (File::exists($base . '/' . $variant->image)) {
+                File::delete($base . '/' . $variant->image);
+            }
+            if (File::exists($thumb . '/' . $variant->image)) {
+                File::delete($thumb . '/' . $variant->image);
+            }
+        }
+        if ($variant->images) {
+            foreach (array_filter(array_map('trim', explode(',', $variant->images))) as $f) {
+                if (File::exists($base . '/' . $f)) {
+                    File::delete($base . '/' . $f);
+                }
+                if (File::exists($thumb . '/' . $f)) {
+                    File::delete($thumb . '/' . $f);
+                }
+            }
+        }
+    }
+
     public function product_edit($id)
     {
         $product = Product::find($id);
@@ -382,10 +450,10 @@ class AdminController extends Controller
             'description' => 'required',
             'regular_price' => 'required',
             'sale_price' => 'required',
-            'SKU' => 'required',
+            'SKU' => 'nullable|string',
             'stock_status' => 'required|in:instock,outofstock',
             'featured' => 'required',
-            'quantity' => 'required',
+            'quantity' => 'nullable|integer|min:0',
             'image' => '|mimes:png,jpg,jpeg|max:2048',
             'category_id' => 'required',
             'brand_id' => 'required',
@@ -405,35 +473,58 @@ class AdminController extends Controller
         $product->description = $request->description;
         $product->regular_price = $request->regular_price;
         $product->sale_price = $request->sale_price;
-        $product->SKU = $request->SKU;
         $product->stock_status = $request->stock_status;
         $product->featured = $request->featured;
-        $product->quantity = $request->quantity;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
+        // SKU and quantity set from variants below when variants exist
 
         // sync variants if provided
         if ($request->filled('variants')) {
-            // remove existing variants and recreate
+            foreach ($product->variants as $v) {
+                $this->deleteVariantImageFiles($v);
+            }
             $product->variants()->delete();
-            foreach ($request->variants as $vdata) {
+            $current_timestamp = Carbon::now()->timestamp;
+            $allowedExt = ['jpg', 'png', 'jpeg'];
+            foreach ($request->variants as $i => $vdata) {
                 if (!isset($vdata['quantity'])) {
                     continue;
                 }
-
+                $variantGalleryStr = $vdata['gallery_filenames'] ?? $vdata['existing_images'] ?? null;
+                if (!$variantGalleryStr && $request->hasFile("variants.{$i}.images")) {
+                    $galleryFiles = $request->file("variants.{$i}.images");
+                    $variantGallery = [];
+                    $gcnt = 0;
+                    foreach (is_array($galleryFiles) ? $galleryFiles : [$galleryFiles] as $file) {
+                        if ($file && in_array(strtolower($file->getClientOriginalExtension()), $allowedExt)) {
+                            $gname = $current_timestamp . '-v' . $i . '-g' . ($gcnt++) . '.' . $file->getClientOriginalExtension();
+                            $this->GenerateProductThumbnailImage($file, $gname);
+                            $variantGallery[] = $gname;
+                        }
+                    }
+                    $variantGalleryStr = $variantGallery ? implode(',', $variantGallery) : ($vdata['existing_images'] ?? null);
+                }
                 \App\Models\ProductVariant::create([
-                    'product_id' => $product->id,
-                    'size'       => $vdata['size'] ?? null,
-                    'color'      => $vdata['color'] ?? null,
-                    'SKU'        => $vdata['SKU'] ?? null,
-                    'quantity'   => $vdata['quantity'],
+                    'product_id'   => $product->id,
+                    'size'         => $vdata['size'] ?? null,
+                    'color'        => $vdata['color'] ?? null,
+                    'SKU'          => $vdata['SKU'] ?? null,
+                    'quantity'     => $vdata['quantity'],
                     'stock_status' => $vdata['quantity'] > 0 ? 'instock' : 'outofstock',
+                    'image'        => null,
+                    'images'       => $variantGalleryStr,
                 ]);
             }
-            // recalc aggregate values
             $agg = $product->variants()->sum('quantity');
             $product->quantity = $agg;
             $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+            $first = $product->variants()->first();
+            if ($first && $first->SKU) {
+                $product->SKU = $first->SKU;
+            }
+            $product->sizes = $product->variants()->pluck('size')->filter()->unique()->values()->implode(',');
+            $product->colors = $product->variants()->pluck('color')->filter()->unique()->values()->implode(',');
         }
 
         $current_timestamp = Carbon::now()->timestamp;
@@ -480,8 +571,11 @@ class AdminController extends Controller
             $product->images = $gallery_images;
         }
 
-        if ($request->sizes !== null) $product->sizes = $request->sizes;
-        if ($request->colors !== null) $product->colors = $request->colors;
+        // sizes/colors are derived from variants when variants exist (set above)
+        if (!$request->filled('variants')) {
+            if ($request->sizes !== null) $product->sizes = $request->sizes;
+            if ($request->colors !== null) $product->colors = $request->colors;
+        }
         $product->save();
         return redirect()->route('admin.products')->with('status', 'Product has been updated successfully');
     }

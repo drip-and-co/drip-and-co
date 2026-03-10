@@ -63,11 +63,17 @@
                             </thead>
                             <tbody>
                                 @foreach ($items as $item)
+                                    @php
+                                        $cartProduct = $item->model ?? \App\Models\Product::find($item->options['product_id'] ?? $item->id);
+                                        $cartImg = $cartProduct && $cartProduct->image
+                                            ? (asset('uploads/products/thumbnails') . '/' . $cartProduct->image)
+                                            : asset('assets/images/placeholder.png');
+                                    @endphp
                                     <tr>
                                         <td>
                                             <div class="shopping-cart__product-item">
                                                 <img loading="lazy"
-                                                    src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}"
+                                                    src="{{ $cartImg }}"
                                                     width="120" height="120" alt="{{ $item->name }}" />
                                             </div>
                                         </td>

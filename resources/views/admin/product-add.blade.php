@@ -88,35 +88,7 @@
                                         @enderror
                             </div>
 
-                            <div class="row mb-3">
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">Sizes</label>
-                                        <select name="sizes[]" class="form-select js-multi-no-range" multiple size="3"
-                                            style="height: 100px;">
-                                            <option value="S" {{ in_array('S', old('sizes', [])) ? 'selected' : '' }}>S</option>
-                                            <option value="M" {{ in_array('M', old('sizes', [])) ? 'selected' : '' }}>M</option>
-                                            <option value="L" {{ in_array('L', old('sizes', [])) ? 'selected' : '' }}>L</option>
-                                            <option value="XL" {{ in_array('XL', old('sizes', [])) ? 'selected' : '' }}>XL</option>
-                                        </select>
-                                        <small>Click to select or deselect options</small>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Colors</label>
-                                        <select name="colors[]" class="form-select js-multi-no-range" multiple size="5"
-                                            style="height: 120px;">
-                                            <option value="White" {{ in_array('White', old('colors', [])) ? 'selected' : '' }}>White</option>
-                                            <option value="Black" {{ in_array('Black', old('colors', [])) ? 'selected' : '' }}>Black</option>
-                                            <option value="Grey" {{ in_array('Grey', old('colors', [])) ? 'selected' : '' }}>Grey</option>
-                                            <option value="Green" {{ in_array('Green', old('colors', [])) ? 'selected' : '' }}>Green</option>
-                                            <option value="Pink" {{ in_array('Pink', old('colors', [])) ? 'selected' : '' }}>Pink</option>
-                                        </select>
-                                        <small>Click to select or deselect options</small>
-                                    </div>
-                                </div>
-
-
-                                <fieldset class="shortdescription">
+                            <fieldset class="shortdescription">
                                     <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
                                     <textarea class="mb-10 ht-150" name="short_description" placeholder="Short Description" tabindex="0"
                                         aria-required="true" required="{{ old('short_description') }}"></textarea>
@@ -187,9 +159,11 @@
                                         <sapn class="alert alert-danger text-center">{{ $message }}
                                         @enderror
 
-                                        <!-- variant manager -->
+                                        <!-- variant manager: size, color, sku, qty, gallery only -->
                                         <fieldset class="variants">
-                                            <div class="body-title mb-10">Variants (size / color / SKU / qty)</div>
+                                            <div class="body-title mb-10">Variants (size / color / SKU / qty / gallery)</div>
+                                            <p class="text-tiny text-secondary mb-2">Add at least one variant per size+colour combination. Each variant has its own SKU, quantity, and optional gallery images (you can add multiple gallery images at once per variant). Total quantity is the sum of all variant quantities.</p>
+                                            <p class="text-tiny mb-2"><strong>Total quantity (from variants):</strong> <span id="variantTotalQty">0</span></p>
                                             <table class="table table-bordered" id="variantTable">
                                                 <thead>
                                                     <tr>
@@ -197,11 +171,12 @@
                                                         <th>Color</th>
                                                         <th>SKU</th>
                                                         <th>Qty</th>
+                                                        <th>Gallery</th>
                                                         <th><button type="button" class="btn btn-sm btn-success" id="addVariant">+</button></th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {{-- old values or leave blank --}}
+                                                    {{-- rows added via JS or leave blank --}}
                                                 </tbody>
                                             </table>
                                         </fieldset>
@@ -226,31 +201,6 @@
                                                         aria-required="true" required="">
                                                 </fieldset>
                                                 @error('sale_price')
-                                                    <sapn class="alert alert-danger text-center">{{ $message }}
-                                                    @enderror
-                                        </div>
-
-
-                                        <div class="cols gap22">
-                                            <fieldset class="name">
-                                                <div class="body-title mb-10">SKU <span class="tf-color-1">*</span>
-                                                </div>
-                                                <input class="mb-10" type="text" placeholder="Enter SKU"
-                                                    name="SKU" tabindex="0" value="{{ old('SKU') }}"
-                                                    aria-required="true" required="">
-                                            </fieldset>
-                                            @error('SKU')
-                                                <sapn class="alert alert-danger text-center">{{ $message }}
-                                                @enderror
-                                                <fieldset class="name">
-                                                    <div class="body-title mb-10">Quantity <span
-                                                            class="tf-color-1">*</span>
-                                                    </div>
-                                                    <input class="mb-10" type="text" placeholder="Enter quantity"
-                                                        name="quantity" tabindex="0" value="{{ old('quantity') }}"
-                                                        aria-required="true" required="">
-                                                </fieldset>
-                                                @error('quantity')
                                                     <sapn class="alert alert-danger text-center">{{ $message }}
                                                     @enderror
                                         </div>
@@ -294,6 +244,8 @@
 
 @push('scripts')
     <script>
+        window.uploadVariantGalleryUrl = "{{ route('admin.product.upload.variant.gallery') }}";
+        window.csrfToken = "{{ csrf_token() }}";
         $(function() {
             $("#myFile").on("change", function(e) {
                 const photoInp = $("#myFile");
@@ -324,39 +276,87 @@
                 .replace(/[^\w ]+/g, "")
                 .replace(/ +/g, "-");
         }
-        /* variant table helper */
+        /* variant table helper: size, color, SKU, qty, image, gallery */
         function addVariantRow(data = {}) {
             const index = $('#variantTable tbody tr').length;
             const row = `<tr>
-                        <td><select name="variants[${index}][size]" class="form-select"
-                                style="height: 100px;">
+                        <td><select name="variants[${index}][size]" class="form-select form-select-sm">
+                                <option value="">—</option>
                                 <option value="S">S</option>
                                 <option value="M">M</option>
                                 <option value="L">L</option>
                                 <option value="XL">XL</option>
                             </select></td>
-                            
-                            <td><select name="variants[${index}][color]" class="form-select"
-                                style="height: 120px;">
-                                <option value="White" >White</option>
-                                <option value="Black" >Black</option>
-                                <option value="Grey" >Grey</option>
-                                <option value="Green" >Green</option>
-                                <option value="Pink" >Pink</option>
+                            <td><select name="variants[${index}][color]" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option value="White">White</option>
+                                <option value="Black">Black</option>
+                                <option value="Grey">Grey</option>
+                                <option value="Green">Green</option>
+                                <option value="Pink">Pink</option>
                             </select></td>
-                        
-                        <td><input type="text" name="variants[${index}][SKU]" value="${data.SKU||''}" class="form-control" /></td>
-                        <td><input type="number" name="variants[${index}][quantity]" value="${data.quantity||''}" class="form-control" min="0" /></td>
-                        <td><button type="button" class="btn btn-sm btn-danger removeVariant">-</button></td>
+                        <td><input type="text" name="variants[${index}][SKU]" value="${data.SKU||''}" class="form-control form-control-sm" placeholder="SKU" /></td>
+                        <td><input type="number" name="variants[${index}][quantity]" value="${data.quantity!==undefined?data.quantity:''}" class="form-control form-control-sm" min="0" placeholder="0" /></td>
+                        <td class="variant-gallery-cell"><input type="hidden" name="variants[${index}][gallery_filenames]" value="" class="variant-gallery-filenames" /><div class="variant-gallery-thumbs mb-2 d-flex flex-wrap gap-1" style="min-height: 52px;"></div><input type="file" name="variants[${index}][images][]" accept="image/*" multiple class="form-control form-control-sm variant-gallery-upload" data-index="${index}" title="Select one or more images; they upload immediately" /><div class="text-tiny text-muted mt-1">Select images to upload into gallery (one at a time or multiple)</div></td>
+                        <td><button type="button" class="btn btn-sm btn-danger removeVariant">−</button></td>
                     </tr>`;
             $('#variantTable tbody').append(row);
         }
 
+        function updateVariantTotalQty() {
+            var total = 0;
+            $('#variantTable tbody tr').each(function() {
+                var q = parseInt($(this).find('input[name*="[quantity]"]').val(), 10);
+                if (!isNaN(q)) total += q;
+            });
+            $('#variantTotalQty').text(total);
+        }
+
         $(document).on('click', '#addVariant', function() {
             addVariantRow();
+            updateVariantTotalQty();
         });
 
         $(document).on('click', '.removeVariant', function() {
             $(this).closest('tr').remove();
-        });    </script>
+            updateVariantTotalQty();
+        });
+
+        $(document).on('input', '#variantTable input[name*="[quantity]"]', updateVariantTotalQty);
+
+        $(document).on('change', '.variant-gallery-upload', function() {
+            var input = this;
+            var files = input.files;
+            if (!files || !files.length) return;
+            var $row = $(input).closest('tr');
+            var $thumbs = $row.find('.variant-gallery-thumbs');
+            var $hidden = $row.find('.variant-gallery-filenames');
+            var formData = new FormData();
+            formData.append('_token', window.csrfToken);
+            for (var i = 0; i < files.length; i++) formData.append('images[]', files[i]);
+            $.ajax({
+                url: window.uploadVariantGalleryUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    if (res.filenames && res.filenames.length) {
+                        var current = ($hidden.val() || '').trim();
+                        var added = res.filenames.join(',');
+                        $hidden.val(current ? current + ',' + added : added);
+                        var base = "{{ asset('uploads/products/thumbnails') }}".replace(/\/?$/, '') + '/';
+                        $.each(res.filenames, function(_, fn) {
+                            $thumbs.append('<img src="' + base + fn + '" alt="" width="52" height="52" class="rounded border" style="object-fit: cover;" />');
+                        });
+                    }
+                    input.value = '';
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Upload failed. Please try again.');
+                    input.value = '';
+                }
+            });
+        });
+    </script>
 @endpush

@@ -16,7 +16,20 @@ class ProductVariant extends Model
         'SKU',
         'quantity',
         'stock_status',
+        'image',
+        'images',
     ];
+
+    /**
+     * Gallery image filenames as array (comma-separated in DB).
+     */
+    public function getGalleryArrayAttribute()
+    {
+        if (empty($this->images)) {
+            return [];
+        }
+        return array_values(array_filter(array_map('trim', explode(',', $this->images))));
+    }
 
     public function product()
     {

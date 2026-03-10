@@ -93,49 +93,6 @@
                                         <sapn class="alert alert-danger text-center">{{ $message }}
                                         @enderror
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">Sizes</label>
-                                    <select name="sizes[]" class="form-select js-multi-no-range" multiple size="3"
-                                        style="height: 100px;">
-                                        <option value="S"
-                                            {{ in_array('S', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>S
-                                        </option>
-                                        <option value="M"
-                                            {{ in_array('M', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>M
-                                        </option>
-                                        <option value="L"
-                                            {{ in_array('L', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>L
-                                        </option>
-                                        <option value="XL"
-                                            {{ in_array('XL', old('sizes', $product->sizes ?? [])) ? 'selected' : '' }}>XL
-                                        </option>
-                                    </select>
-                                    <small>Click to select or deselect options</small>
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Colors</label>
-                                    <select name="colors[]" class="form-select js-multi-no-range" multiple size="5"
-                                        style="height: 120px;">
-                                        <option value="White"
-                                            {{ in_array('White', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
-                                            White</option>
-                                        <option value="Black"
-                                            {{ in_array('Black', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
-                                            Black</option>
-                                        <option value="Grey"
-                                            {{ in_array('Grey', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
-                                            Grey</option>
-                                        <option value="Green"
-                                            {{ in_array('Green', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
-                                            Green</option>
-                                        <option value="Pink"
-                                            {{ in_array('Pink', old('colors', $product->colors ?? [])) ? 'selected' : '' }}>
-                                            Pink</option>
-                                    </select>
-                                    <small>Click to select or deselect options</small>
-                                </div>
-                            </div>
                             <fieldset class="shortdescription">
                                 <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
                                 <textarea class="mb-10 ht-150" name="short_description" placeholder="Short Description" tabindex="0"
@@ -214,9 +171,11 @@
                             <sapn class="alert alert-danger text-center">{{ $message }}
                             @enderror
 
-                            <!-- variant manager -->
+                            <!-- variant manager: size, color, SKU, qty, gallery only -->
                             <fieldset class="variants">
-                                <div class="body-title mb-10">Variants (size / color / SKU / qty)</div>
+                                <div class="body-title mb-10">Variants (size / color / SKU / qty / gallery)</div>
+                                <p class="text-tiny text-secondary mb-2">Each variant is a size+colour combination with its own SKU, quantity, and optional gallery images. Total quantity is the sum of all variant quantities.</p>
+                                <p class="text-tiny mb-2"><strong>Total quantity (from variants):</strong> <span id="variantTotalQty">{{ $product->variants->sum('quantity') }}</span></p>
                                 <table class="table table-bordered" id="variantTable">
                                     <thead>
                                         <tr>
@@ -224,50 +183,43 @@
                                             <th>Color</th>
                                             <th>SKU</th>
                                             <th>Qty</th>
+                                            <th>Gallery</th>
                                             <th><button type="button" class="btn btn-sm btn-success" id="addVariant">+</button></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach($product->variants as $v)
                                             <tr>
-                                                <td><select name="variants[{{ $loop->index }}][size]" class="form-select js-multi-no-range"
-                                                    style="height: 120px;">
-                                                    <option value="S"
-                                                        {{ $v->size == 'S' ? 'selected' : '' }}>
-                                                        S</option>
-                                                    <option value="M"
-                                                        {{ $v->size == 'M' ? 'selected' : '' }}>
-                                                        M</option>
-                                                    <option value="L"
-                                                        {{ $v->size == 'L' ? 'selected' : '' }}>
-                                                        L</option>
-                                                    <option value="XL"
-                                                        {{ $v->size == 'XL' ? 'selected' : '' }}>
-                                                        XL</option>
+                                                <td><select name="variants[{{ $loop->index }}][size]" class="form-select form-select-sm">
+                                                    <option value="">—</option>
+                                                    <option value="S" {{ $v->size == 'S' ? 'selected' : '' }}>S</option>
+                                                    <option value="M" {{ $v->size == 'M' ? 'selected' : '' }}>M</option>
+                                                    <option value="L" {{ $v->size == 'L' ? 'selected' : '' }}>L</option>
+                                                    <option value="XL" {{ $v->size == 'XL' ? 'selected' : '' }}>XL</option>
                                                 </select></td>
-
-                                                <td><select name="variants[{{ $loop->index }}][color]" class="form-select js-multi-no-range"
-                                                    style="height: 120px;">
-                                                    <option value="White"
-                                                        {{ $v->color == 'White' ? 'selected' : '' }}>
-                                                        White</option>
-                                                    <option value="Black"
-                                                        {{ $v->color == 'Black' ? 'selected' : '' }}>
-                                                        Black</option>
-                                                    <option value="Grey"
-                                                        {{ $v->color == 'Grey' ? 'selected' : '' }}>
-                                                        Grey</option>
-                                                    <option value="Green"
-                                                        {{ $v->color == 'Green' ? 'selected' : '' }}>
-                                                        Green</option>
-                                                    <option value="Pink"
-                                                        {{ $v->color == 'Pink' ? 'selected' : '' }}>
-                                                        {{ $product->stock_status == 'instock' ? 'selected' : '' }}
-                                                        Pink</option>
+                                                <td><select name="variants[{{ $loop->index }}][color]" class="form-select form-select-sm">
+                                                    <option value="">—</option>
+                                                    <option value="White" {{ $v->color == 'White' ? 'selected' : '' }}>White</option>
+                                                    <option value="Black" {{ $v->color == 'Black' ? 'selected' : '' }}>Black</option>
+                                                    <option value="Grey" {{ $v->color == 'Grey' ? 'selected' : '' }}>Grey</option>
+                                                    <option value="Green" {{ $v->color == 'Green' ? 'selected' : '' }}>Green</option>
+                                                    <option value="Pink" {{ $v->color == 'Pink' ? 'selected' : '' }}>Pink</option>
                                                 </select></td>
-                                                <td><input type="text" name="variants[{{ $loop->index }}][SKU]" value="{{ $v->SKU }}" class="form-control" /></td>
-                                                <td><input type="number" name="variants[{{ $loop->index }}][quantity]" value="{{ $v->quantity }}" class="form-control" min="0" /></td>
-                                                <td><button type="button" class="btn btn-sm btn-danger removeVariant">-</button></td>
+                                                <td><input type="text" name="variants[{{ $loop->index }}][SKU]" value="{{ $v->SKU }}" class="form-control form-control-sm" /></td>
+                                                <td><input type="number" name="variants[{{ $loop->index }}][quantity]" value="{{ $v->quantity }}" class="form-control form-control-sm" min="0" /></td>
+                                                <td class="variant-gallery-cell">
+                                                    <input type="hidden" name="variants[{{ $loop->index }}][gallery_filenames]" value="{{ $v->images }}" class="variant-gallery-filenames" />
+                                                    <div class="variant-gallery-thumbs mb-2 d-flex flex-wrap gap-1" style="min-height: 52px;">
+                                                        @if($v->gallery_array)
+                                                            @foreach($v->gallery_array as $gimg)
+                                                                <img src="{{ asset('uploads/products/thumbnails/' . $gimg) }}" alt="" width="52" height="52" class="rounded border" style="object-fit: cover;" />
+                                                            @endforeach
+                                                        @endif
+                                                    </div>
+                                                    <input type="file" name="variants[{{ $loop->index }}][images][]" accept="image/*" multiple class="form-control form-control-sm variant-gallery-upload" data-index="{{ $loop->index }}" title="Select one or more images; they upload immediately" />
+                                                    <div class="text-tiny text-muted mt-1">Select images to upload into gallery (one at a time or multiple)</div>
+                                                </td>
+                                                <td><button type="button" class="btn btn-sm btn-danger removeVariant">−</button></td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -295,28 +247,6 @@
                                         @enderror
                             </div>
 
-
-                            <div class="cols gap22">
-                                <fieldset class="name">
-                                    <div class="body-title mb-10">SKU <span class="tf-color-1">*</span>
-                                    </div>
-                                    <input class="mb-10" type="text" placeholder="Enter SKU" name="SKU"
-                                        tabindex="0" value="{{ $product->SKU }}" aria-required="true" required="">
-                                </fieldset>
-                                @error('SKU')
-                                    <sapn class="alert alert-danger text-center">{{ $message }}
-                                    @enderror
-                                    <fieldset class="name">
-                                        <div class="body-title mb-10">Quantity <span class="tf-color-1">*</span>
-                                        </div>
-                                        <input class="mb-10" type="text" placeholder="Enter quantity"
-                                            name="quantity" tabindex="0" value="{{ $product->quantity }}"
-                                            aria-required="true" required="">
-                                    </fieldset>
-                                    @error('quantity')
-                                        <sapn class="alert alert-danger text-center">{{ $message }}
-                                        @enderror
-                            </div>
 
                             <div class="cols gap22">
                                 <fieldset class="name">
@@ -362,6 +292,8 @@
 
 @push('scripts')
     <script>
+        window.uploadVariantGalleryUrl = "{{ route('admin.product.upload.variant.gallery') }}";
+        window.csrfToken = "{{ csrf_token() }}";
         $(function() {
             $("#myFile").on("change", function(e) {
                 const photoInp = $("#myFile");
@@ -392,38 +324,86 @@
                 .replace(/[^\w ]+/g, "")
                 .replace(/ +/g, "-");
         }
-        // variant table helper (same as add page)
         function addVariantRow(data = {}) {
             const index = $('#variantTable tbody tr').length;
             const row = `<tr>
-                            <td><select name="variants[${index}][size]" class="form-select"
-                                style="height: 100px;">
+                            <td><select name="variants[${index}][size]" class="form-select form-select-sm">
+                                <option value="">—</option>
                                 <option value="S">S</option>
                                 <option value="M">M</option>
                                 <option value="L">L</option>
                                 <option value="XL">XL</option>
                             </select></td>
-                            
-                            <td><select name="variants[${index}][color]" class="form-select"
-                                style="height: 120px;">
-                                <option value="White" >White</option>
-                                <option value="Black" >Black</option>
-                                <option value="Grey" >Grey</option>
-                                <option value="Green" >Green</option>
-                                <option value="Pink" >Pink</option>
+                            <td><select name="variants[${index}][color]" class="form-select form-select-sm">
+                                <option value="">—</option>
+                                <option value="White">White</option>
+                                <option value="Black">Black</option>
+                                <option value="Grey">Grey</option>
+                                <option value="Green">Green</option>
+                                <option value="Pink">Pink</option>
                             </select></td>
-                            <td><input type="text" name="variants[${index}][SKU]" value="${data.SKU||''}" class="form-control" /></td>
-                            <td><input type="number" name="variants[${index}][quantity]" value="${data.quantity||''}" class="form-control" min="0" /></td>
-                            <td><button type="button" class="btn btn-sm btn-danger removeVariant">-</button></td>
+                            <td><input type="text" name="variants[${index}][SKU]" value="${data.SKU||''}" class="form-control form-control-sm" /></td>
+                            <td><input type="number" name="variants[${index}][quantity]" value="${data.quantity!==undefined?data.quantity:''}" class="form-control form-control-sm" min="0" /></td>
+                            <td class="variant-gallery-cell"><input type="hidden" name="variants[${index}][gallery_filenames]" value="" class="variant-gallery-filenames" /><div class="variant-gallery-thumbs mb-2 d-flex flex-wrap gap-1" style="min-height: 52px;"></div><input type="file" name="variants[${index}][images][]" accept="image/*" multiple class="form-control form-control-sm variant-gallery-upload" data-index="${index}" title="Select one or more images; they upload immediately" /><div class="text-tiny text-muted mt-1">Select images to upload into gallery (one at a time or multiple)</div></td>
+                            <td><button type="button" class="btn btn-sm btn-danger removeVariant">−</button></td>
                         </tr>`;
             $('#variantTable tbody').append(row);
         }
 
         $(document).on('click', '#addVariant', function() {
             addVariantRow();
+            updateVariantTotalQty();
         });
+
+        function updateVariantTotalQty() {
+            var total = 0;
+            $('#variantTable tbody tr').each(function() {
+                var q = parseInt($(this).find('input[name*="[quantity]"]').val(), 10);
+                if (!isNaN(q)) total += q;
+            });
+            $('#variantTotalQty').text(total);
+        }
 
         $(document).on('click', '.removeVariant', function() {
             $(this).closest('tr').remove();
-        });    </script>
+            updateVariantTotalQty();
+        });
+
+        $(document).on('input', '#variantTable input[name*="[quantity]"]', updateVariantTotalQty);
+
+        $(document).on('change', '.variant-gallery-upload', function() {
+            var input = this;
+            var files = input.files;
+            if (!files || !files.length) return;
+            var $row = $(input).closest('tr');
+            var $thumbs = $row.find('.variant-gallery-thumbs');
+            var $hidden = $row.find('.variant-gallery-filenames');
+            var formData = new FormData();
+            formData.append('_token', window.csrfToken);
+            for (var i = 0; i < files.length; i++) formData.append('images[]', files[i]);
+            $.ajax({
+                url: window.uploadVariantGalleryUrl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    if (res.filenames && res.filenames.length) {
+                        var current = ($hidden.val() || '').trim();
+                        var added = res.filenames.join(',');
+                        $hidden.val(current ? current + ',' + added : added);
+                        var base = "{{ asset('uploads/products/thumbnails') }}".replace(/\/?$/, '') + '/';
+                        $.each(res.filenames, function(_, fn) {
+                            $thumbs.append('<img src="' + base + fn + '" alt="" width="52" height="52" class="rounded border" style="object-fit: cover;" />');
+                        });
+                    }
+                    input.value = '';
+                },
+                error: function(xhr) {
+                    alert(xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Upload failed. Please try again.');
+                    input.value = '';
+                }
+            });
+        });
+    </script>
 @endpush
