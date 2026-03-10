@@ -20,51 +20,22 @@
             color: orange;
         }
 
-        /* Color filter swatches: coloured center with ring */
+        
         .swatch-color {
             display: inline-block;
             border-radius: 50%;
             background-color: currentColor;
         }
 
-        /* When selected, grey ring becomes black */
+        
         .swatch-color.swatch_active {
             border-color: #000 !important;
         }
 
-        /* Dark mode: brighter, thicker ring when selected */
+        
         html[data-theme="dark"] .swatch-color.swatch_active {
             border-color: #f5e6e0 !important;
             box-shadow: 0 0 0 2px #f5e6e0;
-        }
-
-        /* style for the out of stock hover */
-
-        .pc__img-wrapper {
-            position: relative;
-        }
-
-        .out-of-stock-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
-            font-weight: bold;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-transform: uppercase;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .pc__img-wrapper:hover .out-of-stock-overlay {
-            opacity: 1;
         }
     </style>
 
@@ -429,15 +400,22 @@
                 <div class="products-grid row row-cols-2 row-cols-md-3" id="products-grid">
                     @foreach ($products as $product)
                         <div class="product-card-wrapper">
-                            <div class="product-card mb-3 mb-md-4 mb-xxl-5">
+                        <div class="product-card mb-3 mb-md-4 mb-xxl-5" style="position:relative;">
+                                
+                                @if ($product->stock_status === 'outofstock' || $product->quantity === 0)
+                                    <div class="position-absolute top-0 start-0 m-2" style="z-index:10;">
+                                        <span class="badge bg-danger" style="font-size:0.7rem; letter-spacing:0.03em;">Out of Stock</span>
+                                    </div>
+                                @elseif ($product->quantity <= 5)
+                                    <div class="position-absolute top-0 start-0 m-2" style="z-index:10;">
+                                        <span class="badge bg-danger" style="font-size:0.7rem; letter-spacing:0.03em;">Only {{ $product->quantity }} left!</span>
+                                    </div>
+                                @elseif ($product->quantity <= 10)
+                                    <div class="position-absolute top-0 start-0 m-2" style="z-index:10;">
+                                        <span class="badge bg-warning text-dark" style="font-size:0.7rem; letter-spacing:0.03em;">Low Stock</span>
+                                    </div>
+                                @endif
                                 <div class="pc__img-wrapper">
-
-                                        @if($product->quantity <= 0)
-                                            <div class="out-of-stock-overlay">
-                                                Out of Stock
-                                            </div>
-                                        @endif
-
                                     <div class="swiper-container background-img js-swiper-slider"
                                         data-settings='{"resizeObserver": true}'>
                                         <div class="swiper-wrapper">
@@ -486,29 +464,21 @@
                                         </span>
                                     </div>
                                     <div class="product-card__review d-flex align-items-center">
+                                        @php
+                                            $productReviewCount = $product->reviews->count();
+                                            $productAvgRating = $productReviewCount > 0 ? round($product->reviews->avg('rating')) : 0;
+                                        @endphp
                                         <div class="reviews-group d-flex">
-                                            <svg class="review-star" viewBox="0 0 9 9"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_star" />
-                                            </svg>
-                                            <svg class="review-star" viewBox="0 0 9 9"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_star" />
-                                            </svg>
-                                            <svg class="review-star" viewBox="0 0 9 9"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_star" />
-                                            </svg>
-                                            <svg class="review-star" viewBox="0 0 9 9"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_star" />
-                                            </svg>
-                                            <svg class="review-star" viewBox="0 0 9 9"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_star" />
-                                            </svg>
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
+                                                    style="fill: {{ $i <= $productAvgRating ? '#ffc107' : '#ccc' }}">
+                                                    <use href="#icon_star" />
+                                                </svg>
+                                            @endfor
                                         </div>
-                                        <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
+                                        <span class="reviews-note text-lowercase text-secondary ms-1">
+                                            {{ $productReviewCount }} {{ Str::plural('review', $productReviewCount) }}
+                                        </span>
                                     </div>
 
                                     @if (Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
@@ -617,7 +587,7 @@
             }
 
             function applyFilters() {
-                // Any filter change should reset paging.
+                
                 $("#frmfilter input[name='page']").val(1);
                 syncHiddenInputsFromUI();
                 $("#frmfilter").submit();
@@ -661,7 +631,7 @@
 
             $('.swatch-color').on('click', function(e) {
                 e.preventDefault();
-                // Class toggle handled by theme.js Filters via .js-filter
+                
                 applyFilters();
             });
 
@@ -691,7 +661,7 @@
                     });
                 }
 
-                // Keep hidden inputs in-sync so filters can stack.
+                
                 syncHiddenInputsFromUI();
             });
 
