@@ -415,6 +415,11 @@
                                         <span class="badge bg-warning text-dark" style="font-size:0.7rem; letter-spacing:0.03em;">Low Stock</span>
                                     </div>
                                 @endif
+                                @php
+                                    // Shop card always uses product-level image/gallery (chosen outside variant); variant images only on details when that variant is selected
+                                    $cardImage = $product->image;
+                                    $cardGallery = $product->images ? array_filter(array_map('trim', explode(',', $product->images))) : [];
+                                @endphp
                                 <div class="pc__img-wrapper">
                                     <div class="swiper-container background-img js-swiper-slider"
                                         data-settings='{"resizeObserver": true}'>
@@ -423,20 +428,20 @@
                                                 <a
                                                     href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}"><img
                                                         loading="lazy"
-                                                        src="{{ asset('uploads/products') }}/{{ $product->image }}"
+                                                        src="{{ asset('uploads/products') }}/{{ $cardImage }}"
                                                         width="330" height="400" alt="{{ $product->name }}"
                                                         class="pc__img"></a>
                                             </div>
+                                            @foreach ($cardGallery as $gimg)
                                             <div class="swiper-slide">
-                                                @foreach (explode(',', $product->images) as $gimg)
-                                                    <a
-                                                        href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}"><img
-                                                            loading="lazy"
-                                                            src="{{ asset('uploads/products') }}/{{ $gimg }}"
-                                                            width="330" height="400" alt="{{ $product->name }}"
-                                                            class="pc__img"></a>
-                                                @endforeach
+                                                <a
+                                                    href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}"><img
+                                                        loading="lazy"
+                                                        src="{{ asset('uploads/products') }}/{{ $gimg }}"
+                                                        width="330" height="400" alt="{{ $product->name }}"
+                                                        class="pc__img"></a>
                                             </div>
+                                            @endforeach
                                         </div>
                                         <span class="pc__img-prev"><svg width="7" height="11" viewBox="0 0 7 11"
                                                 xmlns="http://www.w3.org/2000/svg">
