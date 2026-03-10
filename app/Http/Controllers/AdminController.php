@@ -285,7 +285,11 @@ class AdminController extends Controller
         $product->brand_id = $request->brand_id;
         $product->sizes = $request->sizes ?? [];
         $product->colors = $request->colors ?? [];
-        // sync variants if provided
+
+        // **persist basic product first so we have an ID for variants**
+        $product->save();
+
+        // sync variants if provided (now that $product->id is available)
         if ($request->filled('variants')) {
             // remove existing variants and recreate
             $product->variants()->delete();
@@ -307,6 +311,7 @@ class AdminController extends Controller
             $agg = $product->variants()->sum('quantity');
             $product->quantity = $agg;
             $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+            // the changed quantities will be saved later after image/gallery handling
         }
 
         
