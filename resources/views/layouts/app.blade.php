@@ -1339,6 +1339,91 @@
             });
         })();
     </script>
+
+    <script>
+        (function () {
+
+            const TRAIL_LENGTH = 12;
+            const SMOOTHING = 0.35;
+            const FADE_DELAY = 200;
+
+            const dots = [];
+            const positions = [];
+
+            let mouse = { x: window.innerWidth/2, y: window.innerHeight/2 };
+            let fadeTimer;
+
+            for (let i = 0; i < TRAIL_LENGTH; i++) {
+
+                const dot = document.createElement("div");
+                dot.className = "cursor-dot";
+
+                const progress = i / TRAIL_LENGTH;
+                const size = 7 - progress * 5;
+
+                dot.style.cssText = `
+                    position: fixed;
+                    pointer-events: none;
+                    width:${size}px;
+                    height:${size}px;
+                    border-radius:50%;
+                    transform:translate(-50%,-50%);
+                    opacity:0;
+                    filter: blur(${progress*2}px) drop-shadow(0 0 ${3-progress*2}px rgba(150,230,160,0.9));
+                    background: radial-gradient(circle, rgba(190,240,195,0.95) 0%, rgba(110,210,130,0.75) 100%);
+                    transition: opacity .25s ease;
+                `;
+
+                document.body.appendChild(dot);
+
+                dots.push(dot);
+                positions.push({ x: mouse.x, y: mouse.y });
+
+            }
+
+            document.addEventListener("mousemove", e => {
+
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+
+                dots.forEach((d,i)=>{
+                    const progress = i/TRAIL_LENGTH;
+                    d.style.opacity = 1 - progress*0.9;
+                });
+
+                clearTimeout(fadeTimer);
+                fadeTimer = setTimeout(()=>{
+                    dots.forEach(d=>d.style.opacity=0);
+                },FADE_DELAY);
+
+            });
+
+            function animate(){
+
+                positions[0].x += (mouse.x - positions[0].x) * SMOOTHING;
+                positions[0].y += (mouse.y - positions[0].y) * SMOOTHING;
+
+                for(let i=1;i<TRAIL_LENGTH;i++){
+
+                    positions[i].x += (positions[i-1].x - positions[i].x) * SMOOTHING;
+                    positions[i].y += (positions[i-1].y - positions[i].y) * SMOOTHING;
+
+                }
+
+                dots.forEach((dot,i)=>{
+                    dot.style.left = positions[i].x + "px";
+                    dot.style.top  = positions[i].y + "px";
+                });
+
+                requestAnimationFrame(animate);
+
+            }
+
+            animate();
+
+        })();
+    </script>
+
     @stack('scripts')
 </body>
 
