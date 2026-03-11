@@ -669,9 +669,21 @@ class AdminController extends Controller
         return redirect()->route('admin.coupons')->with('status', 'Coupon has been deleted successfully!');
     }
 
-    public function orders()
+    public function orders(Request $request)
     {
-        $orders = Order::orderBy('created_at', 'DESC')->paginate(12);
+        // allow searching by customer name and status via query string
+        $query = Order::orderBy('created_at', 'DESC');
+
+        if ($request->filled('name')) {
+            $query->where('name', 'LIKE', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('status')) {
+            // only apply if not the empty "all" option
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->paginate(12)->withQueryString();
         return view('admin.orders', compact('orders'));
     }
 
