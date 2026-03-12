@@ -1,35 +1,32 @@
-<?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('product_variants', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('size')->nullable();
-            $table->string('color')->nullable();
-            $table->string('SKU')->nullable();
-            $table->unsignedInteger('quantity')->default(0);
-            $table->enum('stock_status', ['instock', 'outofstock'])->default('instock');
-            $table->string('image')->nullable();
-            $table->text('images')->nullable();
-            $table->timestamps();
+        Schema::table('product_variants', function (Blueprint $table) {
+            if (!Schema::hasColumn('product_variants', 'image')) {
+                $table->string('image')->nullable()->after('stock_status');
+            }
+
+            if (!Schema::hasColumn('product_variants', 'images')) {
+                $table->json('images')->nullable()->after('image');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('product_variants');
+        Schema::table('product_variants', function (Blueprint $table) {
+            if (Schema::hasColumn('product_variants', 'images')) {
+                $table->dropColumn('images');
+            }
+
+            if (Schema::hasColumn('product_variants', 'image')) {
+                $table->dropColumn('image');
+            }
+        });
     }
 };
