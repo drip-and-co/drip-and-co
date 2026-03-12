@@ -13,8 +13,8 @@ jobs:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
+          host: ${{ secrets.ASTON_HOST }}
+          username: ${{ secrets.ASTON_USER }}
+          key: ${{ secrets.ASTON_SSH_KEY }}
+          port: 22
           script: /home/cs2team17/deploy.sh
