@@ -1,9 +1,8 @@
-name: Deploy to Aston
+name: Auto Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -11,60 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Start SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.ASTON_SSH_KEY }}
-
-      - name: Deploy to Aston
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.ASTON_USER }}@${{ secrets.ASTON_HOST }} << 'EOF'
-            set -e
-
-            APP_DIR="/home/cs2team17/drip-and-co"
-            WEB_DIR="/home/cs2team17/public_html"
-
-            cd "$APP_DIR"
-
-            echo "Resetting app to GitHub main..."
-            git fetch origin
-            git reset --hard origin/main
-            git clean -fd
-
-            echo "Syncing Laravel public folder to live web root..."
-            rsync -av --delete "$APP_DIR/public/" "$WEB_DIR/"
-
-            echo "Restoring Laravel index.php paths..."
-            cat > "$WEB_DIR/index.php" <<'PHP'
-<?php
-
-use Illuminate\Foundation\Application;
-use Illuminate\Http\Request;
-
-define('LARAVEL_START', microtime(true));
-
-if (file_exists($maintenance = _DIR_.'/../drip-and-co/storage/framework/maintenance.php')) {
-    require $maintenance;
-}
-
-require _DIR_.'/../drip-and-co/vendor/autoload.php';
-
-/** @var Application $app */
-$app = require_once _DIR_.'/../drip-and-co/bootstrap/app.php';
-
-$app->handleRequest(Request::capture());
-PHP
-
-            echo "Copying .htaccess if present..."
-            if [ -f "$APP_DIR/public/.htaccess" ]; then
-              cp "$APP_DIR/public/.htaccess" "$WEB_DIR/.htaccess"
-            fi
-
-            echo "Fixing Laravel permissions..."
-            chmod -R 775 "$APP_DIR/storage" "$APP_DIR/bootstrap/cache"
-
-            echo "Clearing Laravel caches..."
-            php artisan optimize:clear || true
-
-            echo "Deploy complete."
-          EOF
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: /home/cs2team17/deploy.sh
