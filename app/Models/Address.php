@@ -11,14 +11,17 @@ class Address extends Model
 
     protected $table = 'addresses';
 
-    protected $fillable = [
-        'user_id',
-        'address',
-        'city',
-        'state',
-        'country',
-        'zip',
-    ];
+ protected $fillable = [
+    'user_id',
+    'name',
+    'phone',
+    'address',
+    'city',
+    'locality',
+    'state',
+    'country',
+    'zip',
+];
 
     public function user()
     {
