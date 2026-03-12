@@ -2,25 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Contact;
 use App\Models\Coupon;
 use App\Models\Order;
-use App\Models\Product;
 use App\Models\OrderItem;
-use App\Models\Transaction;
+use App\Models\Product;
 use App\Models\Slide;
-use App\Models\Contact;
+use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Intervention\Image\Laravel\Facades\Image;
-use App\Models\Address;
-use Illuminate\Support\Facades\Hash;
-
 
 class AdminController extends Controller
 {
@@ -62,7 +60,18 @@ class AdminController extends Controller
         $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
         $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
 
-        return view('admin.index', compact('orders', 'dashboardDatas', 'AmountM', 'OrderedAmountM', 'DeliveredAmountM', 'CanceledAmountM', 'TotalAmount', 'TotalOrderedAmount', 'TotalDeliveredAmount', 'TotalCanceledAmount'));
+        return view('admin.index', compact(
+            'orders',
+            'dashboardDatas',
+            'AmountM',
+            'OrderedAmountM',
+            'DeliveredAmountM',
+            'CanceledAmountM',
+            'TotalAmount',
+            'TotalOrderedAmount',
+            'TotalDeliveredAmount',
+            'TotalCanceledAmount'
+        ));
     }
 
     public function brands()
@@ -83,15 +92,18 @@ class AdminController extends Controller
             'slug' => 'required|unique:brands,slug',
             'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
+
         $brand = new Brand();
         $brand->name = $request->name;
         $brand->slug = Str::slug($request->name);
+
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
         $file_name = Carbon::now()->timestamp . '.' . $file_extension;
         $this->GenerateBrandThumbnailsImage($image, $file_name);
         $brand->image = $file_name;
         $brand->save();
+
         return redirect()->route('admin.brands')->with('status', 'Brand has been added successfully');
     }
 
@@ -112,10 +124,12 @@ class AdminController extends Controller
         $brand = Brand::find($request->id);
         $brand->name = $request->name;
         $brand->slug = Str::slug($request->name);
+
         if ($request->hasFile('image')) {
             if (File::exists(public_path('uploads/brands') . '/' . $brand->image)) {
                 File::delete(public_path('uploads/brands') . '/' . $brand->image);
             }
+
             $image = $request->file('image');
             $file_extension = $request->file('image')->extension();
             $file_name = Carbon::now()->timestamp . '.' . $file_extension;
@@ -140,9 +154,11 @@ class AdminController extends Controller
     public function brand_delete($id)
     {
         $brand = Brand::find($id);
+
         if (File::exists(public_path('uploads/brands') . '/' . $brand->image)) {
             File::delete(public_path('uploads/brands') . '/' . $brand->image);
         }
+
         $brand->delete();
         return redirect()->route('admin.brands')->with('status', 'Brand has been deleted successfully!');
     }
@@ -165,15 +181,18 @@ class AdminController extends Controller
             'slug' => 'required|unique:categories,slug',
             'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
+
         $category = new Category();
         $category->name = $request->name;
         $category->slug = Str::slug($request->name);
+
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
         $file_name = Carbon::now()->timestamp . '.' . $file_extension;
         $this->GenerateCategoryThumbnailsImage($image, $file_name);
         $category->image = $file_name;
         $category->save();
+
         return redirect()->route('admin.categories')->with('status', 'Category has been added successfully');
     }
 
@@ -204,10 +223,12 @@ class AdminController extends Controller
         $category = Category::find($request->id);
         $category->name = $request->name;
         $category->slug = Str::slug($request->name);
+
         if ($request->hasFile('image')) {
             if (File::exists(public_path('uploads/categories') . '/' . $category->image)) {
                 File::delete(public_path('uploads/categories') . '/' . $category->image);
             }
+
             $image = $request->file('image');
             $file_extension = $request->file('image')->extension();
             $file_name = Carbon::now()->timestamp . '.' . $file_extension;
@@ -222,9 +243,11 @@ class AdminController extends Controller
     public function category_delete($id)
     {
         $category = Category::find($id);
+
         if (File::exists(public_path('uploads/categories') . '/' . $category->image)) {
             File::delete(public_path('uploads/categories') . '/' . $category->image);
         }
+
         $category->delete();
         return redirect()->route('admin.categories')->with('status', 'Category has been deleted successfully!');
     }
@@ -262,7 +285,6 @@ class AdminController extends Controller
             'brand_id' => 'required',
             'sizes' => 'nullable|array',
             'colors' => 'nullable|array',
-            // variant-specific input: array of maps
             'variants' => 'nullable|array',
             'variants.*.size' => 'nullable|string',
             'variants.*.color' => 'nullable|string',
@@ -277,32 +299,33 @@ class AdminController extends Controller
         $product->description = $request->description;
         $product->regular_price = $request->regular_price;
         $product->sale_price = $request->sale_price;
-        $product->SKU = 'PROD-' . time(); // updated from first variant below if variants exist
+        $product->SKU = 'PROD-' . time();
         $product->stock_status = $request->stock_status;
         $product->featured = $request->featured;
-        $product->quantity = 0; // set from sum of variants below
+        $product->quantity = 0;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
         $product->sizes = [];
         $product->colors = [];
-
-        // **persist basic product first so we have an ID for variants**
         $product->save();
 
-        // sync variants if provided (now that $product->id is available)
         if ($request->filled('variants')) {
             $product->variants()->delete();
             $current_timestamp = Carbon::now()->timestamp;
             $allowedExt = ['jpg', 'png', 'jpeg'];
+
             foreach ($request->variants as $i => $vdata) {
                 if (!isset($vdata['quantity'])) {
                     continue;
                 }
+
                 $variantGalleryStr = $vdata['gallery_filenames'] ?? null;
+
                 if (!$variantGalleryStr && $request->hasFile("variants.{$i}.images")) {
                     $variantGallery = [];
                     $galleryFiles = $request->file("variants.{$i}.images");
                     $gcnt = 0;
+
                     foreach (is_array($galleryFiles) ? $galleryFiles : [$galleryFiles] as $file) {
                         if ($file && in_array(strtolower($file->getClientOriginalExtension()), $allowedExt)) {
                             $gname = $current_timestamp . '-v' . $i . '-g' . ($gcnt++) . '.' . $file->getClientOriginalExtension();
@@ -310,8 +333,10 @@ class AdminController extends Controller
                             $variantGallery[] = $gname;
                         }
                     }
+
                     $variantGalleryStr = $variantGallery ? implode(',', $variantGallery) : null;
                 }
+
                 \App\Models\ProductVariant::create([
                     'product_id'   => $product->id,
                     'size'         => $vdata['size'] ?? null,
@@ -323,18 +348,22 @@ class AdminController extends Controller
                     'images'       => $variantGalleryStr,
                 ]);
             }
+
             $agg = $product->variants()->sum('quantity');
             $product->quantity = $agg;
-            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+            $product->stock_status = $product->variants()->where('stock_status', 'instock')->exists() ? 'instock' : 'outofstock';
+
             $first = $product->variants()->first();
             if ($first && $first->SKU) {
                 $product->SKU = $first->SKU;
             }
+
             $product->sizes = $product->variants()->pluck('size')->filter()->unique()->values()->implode(',');
             $product->colors = $product->variants()->pluck('color')->filter()->unique()->values()->implode(',');
         }
 
         $current_timestamp = Carbon::now()->timestamp;
+
         if ($request->hasFile('image')) {
             $image = $request->file('image');
             $imageName = $current_timestamp . '.' . $image->extension();
@@ -342,25 +371,29 @@ class AdminController extends Controller
             $product->image = $imageName;
         }
 
-        $gallery_arr = array();
+        $gallery_arr = [];
         $gallery_images = "";
         $counter = 1;
 
         if ($request->hasFile('images')) {
             $allowedfileExtion = ['jpg', 'png', 'jpeg'];
             $files = $request->file('images');
+
             foreach ($files as $file) {
                 $gextension = $file->getClientOriginalExtension();
                 $gcheck = in_array($gextension, $allowedfileExtion);
+
                 if ($gcheck) {
                     $gfileName = $current_timestamp . "-" . $counter . "." . $gextension;
                     $this->GenerateProductThumbnailImage($file, $gfileName);
                     array_push($gallery_arr, $gfileName);
-                    $counter = $counter + 1;
+                    $counter++;
                 }
             }
+
             $gallery_images = implode(',', $gallery_arr);
         }
+
         $product->images = $gallery_images;
         $product->save();
 
@@ -371,6 +404,7 @@ class AdminController extends Controller
     {
         $destinationPathThumbnail = public_path('uploads/products/thumbnails');
         $destinationPath = public_path('uploads/products');
+
         $img = Image::read($image->path());
         $img->cover(540, 689, 'top');
         $img->resize(540, 689, function ($constraint) {
@@ -382,37 +416,40 @@ class AdminController extends Controller
         })->save($destinationPathThumbnail . '/' . $imageName);
     }
 
-    /**
-     * Upload one or more variant gallery images via AJAX; returns filenames for use in form.
-     */
     public function uploadVariantGallery(Request $request)
     {
-        $request->validate(['images' => 'required', 'images.*' => 'image|mimes:jpeg,png,jpg|max:5120']);
+        $request->validate([
+            'images' => 'required',
+            'images.*' => 'image|mimes:jpeg,png,jpg|max:5120'
+        ]);
+
         $files = $request->file('images');
         if (!is_array($files)) {
             $files = $files ? [$files] : [];
         }
+
         $allowedExt = ['jpg', 'png', 'jpeg'];
         $filenames = [];
         $prefix = Carbon::now()->timestamp . '-' . str_replace('.', '', uniqid('', true));
+
         foreach ($files as $i => $file) {
             if (!$file || !in_array(strtolower($file->getClientOriginalExtension()), $allowedExt)) {
                 continue;
             }
+
             $gname = $prefix . '-g' . $i . '.' . $file->getClientOriginalExtension();
             $this->GenerateProductThumbnailImage($file, $gname);
             $filenames[] = $gname;
         }
+
         return response()->json(['filenames' => $filenames]);
     }
 
-    /**
-     * Delete variant main image and gallery images from disk.
-     */
     protected function deleteVariantImageFiles(\App\Models\ProductVariant $variant)
     {
         $base = public_path('uploads/products');
         $thumb = public_path('uploads/products/thumbnails');
+
         if ($variant->image) {
             if (File::exists($base . '/' . $variant->image)) {
                 File::delete($base . '/' . $variant->image);
@@ -421,6 +458,7 @@ class AdminController extends Controller
                 File::delete($thumb . '/' . $variant->image);
             }
         }
+
         if ($variant->images) {
             foreach (array_filter(array_map('trim', explode(',', $variant->images))) as $f) {
                 if (File::exists($base . '/' . $f)) {
@@ -438,6 +476,7 @@ class AdminController extends Controller
         $product = Product::find($id);
         $categories = Category::select('id', 'name')->orderBy('name')->get();
         $brands = Brand::select('id', 'name')->orderBy('name')->get();
+
         return view('admin.product-edit', compact('product', 'categories', 'brands'));
     }
 
@@ -477,25 +516,29 @@ class AdminController extends Controller
         $product->featured = $request->featured;
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
-        // SKU and quantity set from variants below when variants exist
 
-        // sync variants if provided
         if ($request->filled('variants')) {
             foreach ($product->variants as $v) {
                 $this->deleteVariantImageFiles($v);
             }
+
             $product->variants()->delete();
+
             $current_timestamp = Carbon::now()->timestamp;
             $allowedExt = ['jpg', 'png', 'jpeg'];
+
             foreach ($request->variants as $i => $vdata) {
                 if (!isset($vdata['quantity'])) {
                     continue;
                 }
+
                 $variantGalleryStr = $vdata['gallery_filenames'] ?? $vdata['existing_images'] ?? null;
+
                 if (!$variantGalleryStr && $request->hasFile("variants.{$i}.images")) {
                     $galleryFiles = $request->file("variants.{$i}.images");
                     $variantGallery = [];
                     $gcnt = 0;
+
                     foreach (is_array($galleryFiles) ? $galleryFiles : [$galleryFiles] as $file) {
                         if ($file && in_array(strtolower($file->getClientOriginalExtension()), $allowedExt)) {
                             $gname = $current_timestamp . '-v' . $i . '-g' . ($gcnt++) . '.' . $file->getClientOriginalExtension();
@@ -503,8 +546,10 @@ class AdminController extends Controller
                             $variantGallery[] = $gname;
                         }
                     }
+
                     $variantGalleryStr = $variantGallery ? implode(',', $variantGallery) : ($vdata['existing_images'] ?? null);
                 }
+
                 \App\Models\ProductVariant::create([
                     'product_id'   => $product->id,
                     'size'         => $vdata['size'] ?? null,
@@ -516,18 +561,22 @@ class AdminController extends Controller
                     'images'       => $variantGalleryStr,
                 ]);
             }
+
             $agg = $product->variants()->sum('quantity');
             $product->quantity = $agg;
-            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+            $product->stock_status = $product->variants()->where('stock_status', 'instock')->exists() ? 'instock' : 'outofstock';
+
             $first = $product->variants()->first();
             if ($first && $first->SKU) {
                 $product->SKU = $first->SKU;
             }
+
             $product->sizes = $product->variants()->pluck('size')->filter()->unique()->values()->implode(',');
             $product->colors = $product->variants()->pluck('color')->filter()->unique()->values()->implode(',');
         }
 
         $current_timestamp = Carbon::now()->timestamp;
+
         if ($request->hasFile('image')) {
             if (File::exists(public_path('uploads/products') . '/' . $product->image)) {
                 File::delete(public_path('uploads/products') . '/' . $product->image);
@@ -535,13 +584,14 @@ class AdminController extends Controller
             if (File::exists(public_path('uploads/products/thumbnails') . '/' . $product->image)) {
                 File::delete(public_path('uploads/products/thumbnails') . '/' . $product->image);
             }
+
             $image = $request->file('image');
             $imageName = $current_timestamp . '.' . $image->extension();
             $this->GenerateProductThumbnailImage($image, $imageName);
             $product->image = $imageName;
         }
 
-        $gallery_arr = array();
+        $gallery_arr = [];
         $gallery_images = "";
         $counter = 1;
 
@@ -557,25 +607,32 @@ class AdminController extends Controller
 
             $allowedfileExtion = ['jpg', 'png', 'jpeg'];
             $files = $request->file('images');
+
             foreach ($files as $file) {
                 $gextension = $file->getClientOriginalExtension();
                 $gcheck = in_array($gextension, $allowedfileExtion);
+
                 if ($gcheck) {
                     $gfileName = $current_timestamp . "-" . $counter . "." . $gextension;
                     $this->GenerateProductThumbnailImage($file, $gfileName);
                     array_push($gallery_arr, $gfileName);
-                    $counter = $counter + 1;
+                    $counter++;
                 }
             }
+
             $gallery_images = implode(',', $gallery_arr);
             $product->images = $gallery_images;
         }
 
-        // sizes/colors are derived from variants when variants exist (set above)
         if (!$request->filled('variants')) {
-            if ($request->sizes !== null) $product->sizes = $request->sizes;
-            if ($request->colors !== null) $product->colors = $request->colors;
+            if ($request->sizes !== null) {
+                $product->sizes = $request->sizes;
+            }
+            if ($request->colors !== null) {
+                $product->colors = $request->colors;
+            }
         }
+
         $product->save();
         return redirect()->route('admin.products')->with('status', 'Product has been updated successfully');
     }
@@ -583,6 +640,7 @@ class AdminController extends Controller
     public function product_delete($id)
     {
         $product = Product::find($id);
+
         if (File::exists(public_path('uploads/products') . '/' . $product->image)) {
             File::delete(public_path('uploads/products') . '/' . $product->image);
         }
@@ -598,8 +656,6 @@ class AdminController extends Controller
                 File::delete(public_path('uploads/products/thumbnails') . '/' . $ofile);
             }
         }
-
-
 
         $product->delete();
         return redirect()->route('admin.products')->with('status', 'Product has been deleted successfully!');
@@ -633,6 +689,7 @@ class AdminController extends Controller
         $coupon->cart_value = $request->cart_value;
         $coupon->expiry_date = $request->expiry_date;
         $coupon->save();
+
         return redirect()->route('admin.coupons')->with('status', 'Coupon has been added successfully!');
     }
 
@@ -659,6 +716,7 @@ class AdminController extends Controller
         $coupon->cart_value = $request->cart_value;
         $coupon->expiry_date = $request->expiry_date;
         $coupon->save();
+
         return redirect()->route('admin.coupons')->with('status', 'Coupon has been updated successfully!');
     }
 
@@ -666,24 +724,13 @@ class AdminController extends Controller
     {
         $coupon = Coupon::find($id);
         $coupon->delete();
+
         return redirect()->route('admin.coupons')->with('status', 'Coupon has been deleted successfully!');
     }
 
-    public function orders(Request $request)
+    public function orders()
     {
-        // allow searching by customer name and status via query string
-        $query = Order::orderBy('created_at', 'DESC');
-
-        if ($request->filled('name')) {
-            $query->where('name', 'LIKE', '%' . $request->name . '%');
-        }
-
-        if ($request->filled('status')) {
-            // only apply if not the empty "all" option
-            $query->where('status', $request->status);
-        }
-
-        $orders = $query->paginate(12)->withQueryString();
+        $orders = Order::orderBy('created_at', 'DESC')->paginate(12);
         return view('admin.orders', compact('orders'));
     }
 
@@ -692,13 +739,12 @@ class AdminController extends Controller
         $order = Order::find($order_id);
         $orderItems = OrderItem::where('order_id', $order_id)->orderBy('id')->paginate(12);
         $transaction = Transaction::where('order_id', $order_id)->first();
+
         return view('admin.order-details', compact('order', 'orderItems', 'transaction'));
     }
 
     public function update_order_status(Request $request)
     {
-        #$order = Order::find($request->order_id);
-
         $order = Order::with('orderItems')->find($request->order_id);
 
         if (!$order) {
@@ -710,14 +756,13 @@ class AdminController extends Controller
 
         if ($request->order_status == 'delivered') {
             $order->delivered_date = Carbon::now();
-        } else if ($request->order_status == 'canceled') {
+        } elseif ($request->order_status == 'canceled') {
             $order->canceled_date = Carbon::now();
 
             if ($previousStatus != 'canceled') {
-
                 foreach ($order->orderItems as $item) {
-                    // handle variant if present
                     $variant = null;
+
                     if (!empty($item->options)) {
                         $opts = json_decode($item->options, true);
                         if (isset($opts['variant_id'])) {
@@ -729,11 +774,11 @@ class AdminController extends Controller
                         $variant->quantity += $item->quantity;
                         $variant->stock_status = 'instock';
                         $variant->save();
-                        // update parent product aggregate
+
                         $product = $variant->product;
                         if ($product) {
                             $product->quantity = $product->variants()->sum('quantity');
-                            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+                            $product->stock_status = $product->variants()->where('stock_status', 'instock')->exists() ? 'instock' : 'outofstock';
                             $product->save();
                         }
                     } else {
@@ -747,57 +792,54 @@ class AdminController extends Controller
                 }
             }
         }
+
         $order->save();
 
         if ($request->order_status == 'delivered') {
             if ($previousStatus === 'canceled') {
                 foreach ($order->orderItems as $item) {
                     $variant = null;
+
                     if (!empty($item->options)) {
                         $opts = json_decode($item->options, true);
                         if (isset($opts['variant_id'])) {
                             $variant = \App\Models\ProductVariant::find($opts['variant_id']);
                         }
                     }
+
                     if ($variant) {
                         $variant->quantity = max(0, $variant->quantity - $item->quantity);
-                        if ($variant->quantity > 0) {
-                            $variant->stock_status = 'instock';
-                        } else {
-                            $variant->stock_status = 'outofstock';
-                        }
+                        $variant->stock_status = $variant->quantity > 0 ? 'instock' : 'outofstock';
                         $variant->save();
-                        // update product aggregate
+
                         $product = $variant->product;
                         if ($product) {
                             $product->quantity = $product->variants()->sum('quantity');
-                            $product->stock_status = $product->variants()->where('stock_status','instock')->exists() ? 'instock' : 'outofstock';
+                            $product->stock_status = $product->variants()->where('stock_status', 'instock')->exists() ? 'instock' : 'outofstock';
                             $product->save();
                         }
                     } else {
                         $product = Product::find($item->product_id);
                         if ($product) {
                             $product->quantity -= $item->quantity;
-                            if ($product->quantity > 0) {
-                                $product->stock_status = 'instock';
-                            } else {
-                                $product->stock_status = 'outofstock';
-                            }
+                            $product->stock_status = $product->quantity > 0 ? 'instock' : 'outofstock';
                             $product->save();
                         }
                     }
                 }
             }
+
             $transaction = Transaction::where('order_id', $request->order_id)->first();
             $transaction->status = 'approved';
             $transaction->save();
         }
+
         return back()->with("status", "Status changed successfully!");
     }
 
     public function slides()
     {
-        $slides = Slide::orderby('id', 'DESC')->paginate(12);
+        $slides = Slide::orderBy('id', 'DESC')->paginate(12);
         return view('admin.slides', compact('slides'));
     }
 
@@ -816,6 +858,7 @@ class AdminController extends Controller
             'status' => 'required',
             'image' => 'required|mimes:png,jpg,jpeg|max:2048'
         ]);
+
         $slide = new Slide();
         $slide->tagline = $request->tagline;
         $slide->title = $request->title;
@@ -829,6 +872,7 @@ class AdminController extends Controller
         $this->GenerateSlideThumbnailsImage($image, $file_name);
         $slide->image = $file_name;
         $slide->save();
+
         return redirect()->route('admin.slides')->with("status", "Slide added successfully!");
     }
 
@@ -858,6 +902,7 @@ class AdminController extends Controller
             'status' => 'required',
             'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
+
         $slide = Slide::find($request->id);
         $slide->tagline = $request->tagline;
         $slide->title = $request->title;
@@ -868,13 +913,15 @@ class AdminController extends Controller
         if ($request->hasFile('image')) {
             if (File::exists(public_path('uploads/slides') . '/' . $slide->image)) {
                 File::delete(public_path('uploads/slides') . '/' . $slide->image);
-            };
+            }
+
             $image = $request->file('image');
             $file_extension = $request->file('image')->extension();
             $file_name = Carbon::now()->timestamp . '.' . $file_extension;
             $this->GenerateSlideThumbnailsImage($image, $file_name);
             $slide->image = $file_name;
         }
+
         $slide->save();
         return redirect()->route('admin.slides')->with("status", "Slide edited successfully!");
     }
@@ -882,9 +929,11 @@ class AdminController extends Controller
     public function slide_delete($id)
     {
         $slide = Slide::find($id);
+
         if (File::exists(public_path('uploads/slides') . '/' . $slide->image)) {
             File::delete(public_path('uploads/slides') . '/' . $slide->image);
         }
+
         $slide->delete();
         return redirect()->route('admin.slides')->with("status", "Slide deleted successfully!");
     }
@@ -899,6 +948,7 @@ class AdminController extends Controller
     {
         $contact = Contact::find($id);
         $contact->delete();
+
         return redirect()->route('admin.contacts')->with('status', 'Message has been deleted successfully!');
     }
 
@@ -908,43 +958,43 @@ class AdminController extends Controller
         $results = Product::where('name', 'LIKE', "%$query%")->get()->take(8);
         return response()->json($results);
     }
-    
+
     public function users(Request $request)
+    {
+        $q = $request->query('q');
+
+        $users = User::query()
+            ->when($q, function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%");
+            })
+            ->withCount('orders')
+            ->orderBy('id', 'DESC')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.users', compact('users', 'q'));
+    }
+
+    public function user_edit($id)
+    {
+        $user = User::with('address')->findOrFail($id);
+        return view('admin.user-edit', compact('user'));
+    }
+
+    public function user_update(Request $request, $id)
 {
-    $q = $request->query('q');
+    $user = User::findOrFail($id);
 
-    $users = User::query()
-        ->when($q, function ($query) use ($q) {
-            $query->where('name', 'like', "%{$q}%")
-                  ->orWhere('email', 'like', "%{$q}%");
-        })
-        ->withCount('orders')   // remove this line if you don’t have orders() relation
-        ->orderBy('id', 'DESC')
-        ->paginate(10)
-        ->withQueryString();
-
-    return view('admin.users', compact('users', 'q'));
-}
-
-
-public function user_edit(User $user)
-{
-    $user->load('address');
-    return view('admin.user-edit', compact('user'));
-}
-
-public function user_update(Request $request, User $user)
-{
     $request->validate([
-        'name'   => 'required|string|max:255',
+        'name' => 'required|string|max:255',
         'mobile' => 'nullable|string|max:50',
-        'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
+        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
         'password' => 'nullable|string|min:8|confirmed',
-
-        'address'  => 'nullable|string|max:255',
-        'city'     => 'nullable|string|max:255',
-        'county'   => 'nullable|string|max:255',
-        'country'  => 'nullable|string|max:255',
+        'address' => 'nullable|string|max:255',
+        'city' => 'nullable|string|max:255',
+        'county' => 'nullable|string|max:255',
+        'country' => 'nullable|string|max:255',
         'postcode' => 'nullable|string|max:50',
     ]);
 
@@ -958,28 +1008,38 @@ public function user_update(Request $request, User $user)
 
     $user->save();
 
-    \App\Models\Address::updateOrCreate(
-        ['user_id' => $user->id],
-        [
-            'address' => $request->address,
-            'city'    => $request->city,
-            'state'   => $request->county,
-            'country' => $request->country,
-            'zip'     => $request->postcode,
-        ]
-    );
+    if (
+        $request->filled('address') ||
+        $request->filled('city') ||
+        $request->filled('county') ||
+        $request->filled('country') ||
+        $request->filled('postcode')
+    ) {
+        Address::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name'     => $user->name,
+                'phone'    => $user->mobile,
+                'address'  => $request->address,
+                'city'     => $request->city,
+                'locality' => $request->county, // added
+                'state'    => $request->county,
+                'country'  => $request->country,
+                'zip'      => $request->postcode,
+            ]
+        );
+    }
 
     return redirect()->route('admin.users')->with('status', 'User updated successfully!');
 }
+    public function user_delete(User $user)
+    {
+        if ($user->utype === 'ADM' || $user->id === auth()->id()) {
+            return back()->with('error', 'Admin users cannot be deleted.');
+        }
 
-public function user_delete(User $user)
-{
-    if ($user->utype === 'ADM' || $user->id === auth()->id()) {
-        return back()->with('error', 'Admin users cannot be deleted.');
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('status', 'User deleted successfully!');
     }
-
-    $user->delete();
-
-    return redirect()->route('admin.users')->with('status', 'User deleted successfully!');
-}
 }
