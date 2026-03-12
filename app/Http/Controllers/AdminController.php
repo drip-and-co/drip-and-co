@@ -915,24 +915,25 @@ class AdminController extends Controller
 }
 
 
-public function user_edit(User $user)
-{
-    $user->load('address');
-    return view('admin.user-edit', compact('user'));
-}
+ public function user_edit($id)
+    {
+        $user = User::with('address')->findOrFail($id);
+        return view('admin.user-edit', compact('user'));
+    }
 
-public function user_update(Request $request, User $user)
+    public function user_update(Request $request, $id)
 {
+    $user = User::findOrFail($id);
+
     $request->validate([
-        'name'   => 'required|string|max:255',
+        'name' => 'required|string|max:255',
         'mobile' => 'nullable|string|max:50',
-        'email'  => 'required|email|max:255|unique:users,email,' . $user->id,
+        'email' => 'required|email|max:255|unique:users,email,' . $user->id,
         'password' => 'nullable|string|min:8|confirmed',
-
-        'address'  => 'nullable|string|max:255',
-        'city'     => 'nullable|string|max:255',
-        'county'   => 'nullable|string|max:255',
-        'country'  => 'nullable|string|max:255',
+        'address' => 'nullable|string|max:255',
+        'city' => 'nullable|string|max:255',
+        'county' => 'nullable|string|max:255',
+        'country' => 'nullable|string|max:255',
         'postcode' => 'nullable|string|max:50',
     ]);
 
@@ -946,28 +947,38 @@ public function user_update(Request $request, User $user)
 
     $user->save();
 
-    \App\Models\Address::updateOrCreate(
-        ['user_id' => $user->id],
-        [
-            'address' => $request->address,
-            'city'    => $request->city,
-            'state'   => $request->county,
-            'country' => $request->country,
-            'zip'     => $request->postcode,
-        ]
-    );
+    if (
+        $request->filled('address') ||
+        $request->filled('city') ||
+        $request->filled('county') ||
+        $request->filled('country') ||
+        $request->filled('postcode')
+    ) {
+        Address::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name'     => $user->name,
+                'phone'    => $user->mobile,
+                'address'  => $request->address,
+                'city'     => $request->city,
+                'locality' => $request->county, // added
+                'state'    => $request->county,
+                'country'  => $request->country,
+                'zip'      => $request->postcode,
+            ]
+        );
+    }
 
     return redirect()->route('admin.users')->with('status', 'User updated successfully!');
 }
+    public function user_delete(User $user)
+    {
+        if ($user->utype === 'ADM' || $user->id === auth()->id()) {
+            return back()->with('error', 'Admin users cannot be deleted.');
+        }
 
-public function user_delete(User $user)
-{
-    if ($user->utype === 'ADM' || $user->id === auth()->id()) {
-        return back()->with('error', 'Admin users cannot be deleted.');
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('status', 'User deleted successfully!');
     }
-
-    $user->delete();
-
-    return redirect()->route('admin.users')->with('status', 'User deleted successfully!');
-}
 }

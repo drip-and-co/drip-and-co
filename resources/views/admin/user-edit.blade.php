@@ -40,9 +40,7 @@
                 <div class="alert alert-success mb-3">{{ Session::get('status') }}</div>
             @endif
 
-           <form action="{{ route('admin.user.update', $user) }}" method="POST" class="form-new-product form-style-1 needs-validation">
-                  method="POST"
-                  class="form-new-product form-style-1 needs-validation">
+           <form action="{{ route('admin.user.update', ['id' => $user->id]) }}" method="POST" class="form-new-product form-style-1 needs-validation">
                 @csrf
                 @method('PUT')
 
